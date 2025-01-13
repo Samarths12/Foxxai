@@ -8,7 +8,7 @@ const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
-  // Check authentication status when component mounts
+  
   useEffect(() => {
     const checkAuth = () => {
       const authStatus = localStorage.getItem("isAuthenticated");
@@ -16,7 +16,7 @@ const Header = () => {
     };
     
     checkAuth();
-    // Add event listener for storage changes
+    
     window.addEventListener('storage', checkAuth);
     
     return () => {
@@ -41,7 +41,7 @@ const Header = () => {
   ];
 
   const handleDashClick = () => {
-    navigate('/dashboard'); // Navigate to dashboard
+    navigate('/dashboard'); 
   };
 
   const handleSignOut = () => {

@@ -192,7 +192,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Basic Plan */}
+              
               <div className="p-6 bg-blue-50 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="text-xl font-bold mb-2 text-blue-800">Basic</h3>
                 <p className="text-4xl font-extrabold mb-4 text-blue-600">$10</p>
@@ -209,7 +209,7 @@ const Dashboard = () => {
                 </button>
               </div>
     
-              {/* Pro Plan */}
+             
               <div className="p-6 bg-purple-50 rounded-lg border border-purple-200 shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="text-xl font-bold mb-2 text-purple-800">Pro</h3>
                 <p className="text-4xl font-extrabold mb-4 text-purple-600">$25</p>
@@ -226,7 +226,7 @@ const Dashboard = () => {
                 </button>
               </div>
     
-              {/* Enterprise Plan */}
+              
               <div className="p-6 bg-green-50 rounded-lg border border-green-200 shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="text-xl font-bold mb-2 text-green-800">Enterprise</h3>
                 <p className="text-4xl font-extrabold mb-4 text-green-600">Custom</p>
@@ -252,9 +252,9 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50">
       <div className="flex h-screen">
-        {/* Sidebar */}
+       
         <div className="w-64 bg-white border-r border-indigo-100 shadow-lg flex flex-col justify-between">
-          {/* Main Navigation */}
+          
           <nav className="p-4 space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -282,7 +282,7 @@ const Dashboard = () => {
             })}
           </nav>
 
-          {/* User Profile Section */}
+          
           <div className="mt-auto p-4 border-t border-indigo-100 bg-white">
             <div className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-full overflow-hidden ring-2 ring-indigo-200">
@@ -304,7 +304,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+       
         <div className="flex-1 overflow-auto p-8">
           {contentComponents[activeTab]}
         </div>

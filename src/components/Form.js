@@ -12,7 +12,7 @@ const ChatBox = () => {
       setMessages([...messages, { text: currentMessage, sender: "user" }]);
       setCurrentMessage("");
 
-      // Simulate a bot response
+      
       setTimeout(() => {
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -26,7 +26,7 @@ const ChatBox = () => {
 
   return (
     <div>
-      {/* Chat Icon */}
+      
       <div className="fixed bottom-8 right-8 z-50">
         <button
           onClick={toggleChat}
@@ -36,7 +36,7 @@ const ChatBox = () => {
         </button>
       </div>
 
-      {/* Chat Box */}
+      
       {isChatOpen && (
         <div className="fixed bottom-20 right-8 bg-white w-80 max-w-full shadow-lg rounded-xl border border-gray-300 z-50">
           <div className="bg-gradient-to-r from-blue-400 to-blue-600 text-white p-4 rounded-t-xl flex justify-between items-center">

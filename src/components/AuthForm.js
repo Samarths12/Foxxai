@@ -44,13 +44,13 @@ const AuthForm = () => {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      // Store authentication status in localStorage
+      
       localStorage.setItem("isAuthenticated", "true");
       
-      // Dispatch storage event to notify other components
+      
       window.dispatchEvent(new Event('storage'));
       
-      // Redirect to home page
+      
       navigate("/");
     }
   };

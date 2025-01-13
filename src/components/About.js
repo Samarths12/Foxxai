@@ -6,7 +6,7 @@ import { GiAnimalSkull } from "react-icons/gi";
 const AboutUs = () => {
   return (
     <section className="bg-[#EAF6FF] text-gray-800 py-16 relative">
-      {/* Logo and Name at Top-Center */}
+      
       <div className="flex flex-col items-center mb-12">
         <GiAnimalSkull className="text-4xl text-blue-600 opacity-80 mb-2" />
         <h1 className="text-2xl font-bold text-blue-600">FOX AI</h1>
@@ -14,7 +14,7 @@ const AboutUs = () => {
 
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Contact and Social Section */}
+          
           <div className="space-y-8">
             <div>
               <h3 className="text-xl font-bold mb-4">Sales:</h3>
@@ -63,7 +63,7 @@ const AboutUs = () => {
             </div>
           </div>
 
-          {/* About Us Content */}
+          
           <div className="space-y-6">
             <h3 className="text-2xl font-bold">About FOX AI</h3>
             <p className="text-lg leading-relaxed">

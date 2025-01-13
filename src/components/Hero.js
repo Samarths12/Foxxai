@@ -4,7 +4,7 @@ import { FaProjectDiagram, FaRegComment, FaUsers } from "react-icons/fa";
 const Hero = () => {
   return (
     <section className="bg-sky-100 py-20 text-center text-[#111827] relative overflow-hidden">
-      {/* Animated SVG Background */}
+      
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center opacity-20 z-10">
         <div className="relative w-[800px] h-[800px]">
           <svg
@@ -69,7 +69,7 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      
       <div className="container mx-auto px-4 relative z-20">
         <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in bg-gradient-to-r from-blue-400 to-blue-600 text-transparent bg-clip-text">
           <span className="text-[#111827] block animate-fade-in">Own your AI,</span>
@@ -89,10 +89,10 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Image Background and Stats */}
+      
       <div className="relative z-20 mt-10 animate-fade-in animate-delay-1500ms">
         <div className="relative w-full h-[40rem] overflow-hidden mx-auto">
-          {/* Image Background */}
+          
           <img
             src="https://as1.ftcdn.net/v2/jpg/05/85/13/86/1000_F_585138628_gHYaMUVJobKI3mT1DvYACH99FZHedVpx.jpg"
             alt="AI in action"

@@ -5,7 +5,7 @@ const People = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
-  // Sample people data - replace with your actual data
+  
   const people = [
     {
       name: "Sarah Johnson",
@@ -44,7 +44,7 @@ const People = () => {
       }
   ];
 
-  // Animation variants for the container
+  
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: { 
@@ -86,7 +86,7 @@ const People = () => {
         </h2>
         
         <div className="flex justify-center items-center">
-          {/* Circular background rings */}
+          
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-200 to-purple-200 animate-spin-slow" 
                  style={{ width: '400px', height: '400px' }}>
@@ -95,7 +95,7 @@ const People = () => {
                  style={{ width: '350px', height: '350px', margin: '25px' }}>
             </div>
             
-            {/* Person card */}
+            
             <AnimatePresence mode="wait">
               {isVisible && (
                 <motion.div
@@ -165,7 +165,7 @@ const People = () => {
           </div>
         </div>
 
-        {/* Navigation dots */}
+        
         <div className="flex justify-center space-x-2 mt-8">
           {people.map((_, index) => (
             <button

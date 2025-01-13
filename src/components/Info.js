@@ -32,7 +32,7 @@ const Info = () => {
 
   return (
     <section className="py-20 bg-gradient-to-b from-sky-50 to-blue-100 text-gray-800">
-      {/* First Section - Data Needs Assessment */}
+      
       <div ref={section1Ref} className="container mx-auto px-4 mb-20 opacity-0 not-animated">
         <div className="text-center mb-10">
           <h2 className="text-5xl font-bold text-blue-700 mb-4">
@@ -45,7 +45,7 @@ const Info = () => {
 
         <div className="flex flex-col items-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
-            {/* Step 1 */}
+           
             <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="h-16 w-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 mx-auto">
                 1
@@ -69,7 +69,7 @@ const Info = () => {
               </ul>
             </div>
 
-            {/* Step 2 */}
+           
             <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="h-16 w-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 mx-auto">
                 2
@@ -93,7 +93,7 @@ const Info = () => {
               </ul>
             </div>
 
-            {/* Step 3 */}
+          
             <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="h-16 w-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 mx-auto">
                 3
@@ -120,7 +120,7 @@ const Info = () => {
         </div>
       </div>
 
-      {/* Second Section - Data Annotation Process */}
+      
       <div ref={section2Ref} className="container mx-auto px-4 mb-20 opacity-0 not-animated">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-blue-700 mb-8 text-center">
@@ -148,7 +148,7 @@ const Info = () => {
         </div>
       </div>
 
-      {/* Third Section - AI Quality Check */}
+     
       <div ref={section3Ref} className="container mx-auto px-4 mb-20 opacity-0 not-animated">
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl shadow-xl p-8 max-w-6xl mx-auto text-white">
           <h2 className="text-4xl font-bold mb-8 text-center">

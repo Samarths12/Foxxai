@@ -6,19 +6,19 @@ const Features = () => {
       image: "https://res.cloudinary.com/dnztdqczk/image/upload/v1721373864/TCImages/gzk7dms8x5q1uufjxygf.jpg",
       title: "Transforming healthcare with 'Customized AI voice a...",
       description: "In today's fast-paced healthcare environment, efficient patient interaction and administrative automation are crucial. Our client, a top-tier global h...",
-      bgColor: "#F3E5F5", // Soft Lavender
+      bgColor: "#F3E5F5", 
     },
     {
       image: "https://i.ibb.co/m0Y61b3/9e2dd011cc61.jpg",
       title: "Elevating AI accuracy with Advanced Data Annotatio...",
       description: "In the rapidly evolving world of artificial intelligence, the accuracy and reliability of AI models heavily depend on the quality of the annotated dat...",
-      bgColor: "#FFF8E5", // Soft Yellow
+      bgColor: "#FFF8E5", 
     },
     {
       image: "https://i.ibb.co/2WPhL34/35df419bd61a.jpg",
       title: "Achieving 80% Reduction in Hallucinations and 50% ...",
       description: "In the competitive landscape of technology, efficiency and accuracy in AI-generated content are paramount. Our client, a prominent global tech giant, ...",
-      bgColor: "#E7FFEB", // Soft Green
+      bgColor: "#E7FFEB", 
     },
   ];
 
