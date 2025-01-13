@@ -5,7 +5,7 @@ const ImageCarousel = () => {
   const carouselContent = [
     {
       title: "Develop Unique LLM",
-      description: "We use RAG, prompt-enginnering, and fine-tuning to create your unique LLM based on a base LLM. We make sure the chosen approach best serves your company's requirements.",
+      description: "We use RAG, prompt-engineering, and fine-tuning to create your unique LLM based on a base LLM. We make sure the chosen approach best serves your company's requirements.",
       image: "https://cdn.prod.website-files.com/63ca3d566352c27afde699d2/65f9456c01a882525a073b76_RAG%20(1).jpg"
     },
     {
@@ -43,18 +43,18 @@ const ImageCarousel = () => {
   }, []);
 
   return (
-    <section className="bg-black py-20">
+    <section className="bg-[#EAF6FF] py-20">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-blue-600 text-transparent bg-clip-text">
-        We offer consultation at every level of your LLM adoption journey
+          We offer consultation at every level of your LLM adoption journey
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="text-white space-y-4">
-            <h3 className="text-4xl font-bold mb-4 text-white">
+          <div className="text-[#111827] space-y-4">
+            <h3 className="text-4xl font-bold mb-4">
               {carouselContent[currentIndex].title}
             </h3>
-            <p className="text-gray-300 leading-relaxed transition-opacity duration-300">
+            <p className="text-gray-800 leading-relaxed transition-opacity duration-300">
               {carouselContent[currentIndex].description}
             </p>
           </div>
