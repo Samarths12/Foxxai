@@ -38,7 +38,7 @@ const handleLogoClick = () => {
   const contentComponents = {
     home: (
       <div className="space-y-6">
-        {/* Search Box */}
+        
         <div className="bg-white shadow-lg border border-gray-100 p-4 rounded-lg flex items-center space-x-4">
           <input
             type="text"
@@ -50,7 +50,7 @@ const handleLogoClick = () => {
           </button>
         </div>
   
-        {/* Welcome Back Card */}
+        
         <Card className="bg-white shadow-lg border border-gray-100">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="text-2xl text-gray-800">Welcome Back!</CardTitle>
@@ -73,7 +73,7 @@ const handleLogoClick = () => {
           </CardContent>
         </Card>
   
-        {/* Recent Activity and Quick Actions */}
+       
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-white shadow-lg border border-gray-100">
             <CardHeader className="border-b border-gray-100">
@@ -285,9 +285,9 @@ const handleLogoClick = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50">
       <div className="flex h-screen">
-        {/* Sidebar with Logo and Fox text */}
+        
         <div className="w-64 bg-white border-r border-indigo-100 shadow-lg flex flex-col">
-          {/* Logo and Fox Text */}
+       
           <div className="p-4 border-b border-indigo-100">
   <div 
   
@@ -303,7 +303,7 @@ const handleLogoClick = () => {
   </div>
 </div>
 
-          {/* Navigation */}
+        
           <nav className="p-4 space-y-2 flex-grow">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -331,7 +331,7 @@ const handleLogoClick = () => {
             })}
           </nav>
 
-          {/* User Info and Sign Out - Fixed at Bottom */}
+          
           <div className="fixed bottom-0 w-64 p-4 border-t border-indigo-100 bg-white space-y-2">
             <div className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-full overflow-hidden ring-2 ring-indigo-200">
@@ -351,7 +351,7 @@ const handleLogoClick = () => {
               </div>
             </div>
             
-            {/* Sign Out Button */}
+            
             <button
               onClick={handleSignOut}
               className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
@@ -362,7 +362,7 @@ const handleLogoClick = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        
         <div className="flex-1 overflow-auto p-8">
           {contentComponents[activeTab]}
         </div>

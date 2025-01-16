@@ -35,7 +35,7 @@ const Header = () => {
     { href: "#llm", label: "LLM" },
     { href: "#data", label: "Data" },
     { href: "#resources", label: "Resources" },
-    { href: "#features", label: "Blogs" }, // Scroll to Features
+    { href: "#features", label: "Blogs" }, 
     { href: "#ainama", label: "AINama" },
   ];
 
@@ -44,7 +44,7 @@ const Header = () => {
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
-    setIsOpen(false); // Close the mobile menu
+    setIsOpen(false); 
   };
 
   const handleDashClick = () => {
@@ -58,7 +58,7 @@ const Header = () => {
   };
 
   const handleLogoClick = () => {
-    navigate("/"); // Redirects to the main page
+    navigate("/"); 
   };
 
   return (
@@ -71,7 +71,7 @@ const Header = () => {
         <div className="flex justify-between items-center">
           <div
             className="flex items-center space-x-2 group cursor-pointer"
-            onClick={handleLogoClick} // Added onClick to redirect
+            onClick={handleLogoClick} 
           >
             <img
               src="https://img.freepik.com/premium-photo/visual-fox_931878-695311.jpg"

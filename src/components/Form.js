@@ -7,7 +7,7 @@ const ChatBox = () => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
 
-  // Add welcome message when chat is opened
+  
   useEffect(() => {
     if (isChatOpen && messages.length === 0) {
       setMessages([

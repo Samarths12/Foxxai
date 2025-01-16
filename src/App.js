@@ -12,7 +12,7 @@ import AuthForm from "./components/AuthForm";
 import Dashboard from "./components/Dashboard";
 import People from "./components/People";
 
-// Layout component with handleLogin prop
+
 const AppLayout = ({ handleLogin }) => {
   const location = useLocation();
   const isDashboardRoute = location.pathname === '/dashboard';
@@ -49,12 +49,12 @@ const AppLayout = ({ handleLogin }) => {
   );
 };
 
-// Main App component
+
 const App = () => {
-  // Define handleLogin at the top level
+ 
   const handleLogin = () => {
     localStorage.setItem("isAuthenticated", "true");
-    window.dispatchEvent(new Event('storage')); // Trigger storage event
+    window.dispatchEvent(new Event('storage')); 
   };
 
   return (
