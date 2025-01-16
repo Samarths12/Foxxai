@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiMessageSquare } from "react-icons/fi";
 import { IoSend } from "react-icons/io5";
 
@@ -7,16 +7,29 @@ const ChatBox = () => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
 
+  // Add welcome message when chat is opened
+  useEffect(() => {
+    if (isChatOpen && messages.length === 0) {
+      setMessages([
+        {
+          text: "Tell us what you are looking for, we are here to help.",
+          sender: "bot"
+        }
+      ]);
+    }
+  }, [isChatOpen]);
+
   const handleSendMessage = () => {
     if (currentMessage.trim()) {
       setMessages([...messages, { text: currentMessage, sender: "user" }]);
       setCurrentMessage("");
-
-      
       setTimeout(() => {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: "Thanks for your message! We'll get back to you shortly.", sender: "bot" },
+          {
+            text: "Thanks for your message! We'll get back to you shortly.",
+            sender: "bot"
+          }
         ]);
       }, 1000);
     }
@@ -26,7 +39,6 @@ const ChatBox = () => {
 
   return (
     <div>
-      
       <div className="fixed bottom-8 right-8 z-50">
         <button
           onClick={toggleChat}
@@ -35,8 +47,6 @@ const ChatBox = () => {
           <FiMessageSquare className="text-2xl" />
         </button>
       </div>
-
-      
       {isChatOpen && (
         <div className="fixed bottom-20 right-8 bg-white w-80 max-w-full shadow-lg rounded-xl border border-gray-300 z-50">
           <div className="bg-gradient-to-r from-blue-400 to-blue-600 text-white p-4 rounded-t-xl flex justify-between items-center">
@@ -70,7 +80,7 @@ const ChatBox = () => {
               type="text"
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
-              placeholder={currentMessage || "Type your message..."}
+              placeholder="Type your message..."
               className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-400 text-black"
             />
             <button

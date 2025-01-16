@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,19 +8,18 @@ const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
-  
   useEffect(() => {
     const checkAuth = () => {
       const authStatus = localStorage.getItem("isAuthenticated");
       setIsAuthenticated(authStatus === "true");
     };
-    
+
     checkAuth();
-    
-    window.addEventListener('storage', checkAuth);
-    
+
+    window.addEventListener("storage", checkAuth);
+
     return () => {
-      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener("storage", checkAuth);
     };
   }, []);
 
@@ -36,18 +35,30 @@ const Header = () => {
     { href: "#llm", label: "LLM" },
     { href: "#data", label: "Data" },
     { href: "#resources", label: "Resources" },
-    { href: "#aipool", label: "AIPool" },
+    { href: "#features", label: "Blogs" }, // Scroll to Features
     { href: "#ainama", label: "AINama" },
   ];
 
+  const handleScrollToSection = (id) => {
+    const element = document.querySelector(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    setIsOpen(false); // Close the mobile menu
+  };
+
   const handleDashClick = () => {
-    navigate('/dashboard'); 
+    navigate("/dashboard");
   };
 
   const handleSignOut = () => {
     setIsAuthenticated(false);
     localStorage.setItem("isAuthenticated", "false");
     navigate("/");
+  };
+
+  const handleLogoClick = () => {
+    navigate("/"); // Redirects to the main page
   };
 
   return (
@@ -58,7 +69,10 @@ const Header = () => {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2 group">
+          <div
+            className="flex items-center space-x-2 group cursor-pointer"
+            onClick={handleLogoClick} // Added onClick to redirect
+          >
             <img
               src="https://img.freepik.com/premium-photo/visual-fox_931878-695311.jpg"
               alt="Logo"
@@ -76,6 +90,10 @@ const Header = () => {
                   <a
                     href={item.href}
                     className="text-[#4f9fb8] text-lg font-semibold hover:text-[#0078a6] transition-colors duration-300 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#0078a6] hover:after:w-full after:transition-all after:duration-300"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleScrollToSection(item.href);
+                    }}
                   >
                     {item.label}
                   </a>
@@ -136,7 +154,10 @@ const Header = () => {
                   <a
                     href={item.href}
                     className="text-[#4f9fb8] text-lg font-semibold hover:text-[#0078a6] transition-colors duration-300 block"
-                    onClick={() => setIsOpen(false)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleScrollToSection(item.href);
+                    }}
                   >
                     {item.label}
                   </a>

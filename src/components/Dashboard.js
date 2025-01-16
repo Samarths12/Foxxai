@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AiOutlineHome, AiOutlineSearch, AiOutlineBook } from 'react-icons/ai';
-import { FaTags, FaUser, FaBook } from 'react-icons/fa';
+import { FaTags, FaUser, FaBook, FaSignOutAlt } from 'react-icons/fa';
 import { Card, CardHeader, CardTitle, CardContent } from './Card';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [userName, setUserName] = useState('User');
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -13,6 +17,16 @@ const Dashboard = () => {
     return <Navigate to="/signin" />;
   }
 
+ 
+
+const handleLogoClick = () => {
+  navigate('/');
+};
+
+  const handleSignOut = () => {
+    localStorage.setItem('isAuthenticated', 'false');
+    window.location.href = '/signin';
+  };
   const navItems = [
     { id: 'home', icon: AiOutlineHome, label: 'Home' },
     { id: 'search', icon: AiOutlineSearch, label: 'Search' },
@@ -24,6 +38,19 @@ const Dashboard = () => {
   const contentComponents = {
     home: (
       <div className="space-y-6">
+        {/* Search Box */}
+        <div className="bg-white shadow-lg border border-gray-100 p-4 rounded-lg flex items-center space-x-4">
+          <input
+            type="text"
+            placeholder="Search anything..."
+            className="text-black flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          />
+          <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+            Search
+          </button>
+        </div>
+  
+        {/* Welcome Back Card */}
         <Card className="bg-white shadow-lg border border-gray-100">
           <CardHeader className="border-b border-gray-100">
             <CardTitle className="text-2xl text-gray-800">Welcome Back!</CardTitle>
@@ -39,12 +66,14 @@ const Dashboard = () => {
                 <p className="text-4xl font-bold text-emerald-600">48</p>
               </div>
               <div className="bg-violet-50 p-6 rounded-xl shadow-sm border border-violet-100 hover:shadow-md transition-shadow">
-                <h3 className="font-semibold text-violet-900 mb-2">Team Members</h3>
+                <h3 className="font-semibold text-violet-900 mb-2">Team Agents</h3>
                 <p className="text-4xl font-bold text-violet-600">8</p>
               </div>
             </div>
           </CardContent>
         </Card>
+  
+        {/* Recent Activity and Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-white shadow-lg border border-gray-100">
             <CardHeader className="border-b border-gray-100">
@@ -53,7 +82,10 @@ const Dashboard = () => {
             <CardContent>
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div
+                    key={i}
+                    className="flex items-center space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
                     <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
                     <div>
                       <p className="font-medium text-gray-800">Project Update #{i}</p>
@@ -64,6 +96,7 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+  
           <Card className="bg-white shadow-lg border border-gray-100">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="text-xl text-gray-800">Quick Actions</CardTitle>
@@ -252,10 +285,26 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50">
       <div className="flex h-screen">
-       
-        <div className="w-64 bg-white border-r border-indigo-100 shadow-lg flex flex-col justify-between">
-          
-          <nav className="p-4 space-y-2">
+        {/* Sidebar with Logo and Fox text */}
+        <div className="w-64 bg-white border-r border-indigo-100 shadow-lg flex flex-col">
+          {/* Logo and Fox Text */}
+          <div className="p-4 border-b border-indigo-100">
+  <div 
+  
+    className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+    onClick={handleLogoClick}
+  >
+    <img
+      src="https://img.freepik.com/premium-photo/visual-fox_931878-695311.jpg"
+      alt="Fox Logo"
+      className="w-8 h-8"
+    />
+    <span className="text-xl font-bold text-indigo-600">Fox</span>
+  </div>
+</div>
+
+          {/* Navigation */}
+          <nav className="p-4 space-y-2 flex-grow">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -282,8 +331,8 @@ const Dashboard = () => {
             })}
           </nav>
 
-          
-          <div className="mt-auto p-4 border-t border-indigo-100 bg-white">
+          {/* User Info and Sign Out - Fixed at Bottom */}
+          <div className="fixed bottom-0 w-64 p-4 border-t border-indigo-100 bg-white space-y-2">
             <div className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-full overflow-hidden ring-2 ring-indigo-200">
                 <img
@@ -301,10 +350,19 @@ const Dashboard = () => {
                 </span>
               </div>
             </div>
+            
+            {/* Sign Out Button */}
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <FaSignOutAlt size={16} />
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
 
-       
+        {/* Main Content */}
         <div className="flex-1 overflow-auto p-8">
           {contentComponents[activeTab]}
         </div>
