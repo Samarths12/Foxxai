@@ -362,7 +362,6 @@ const handleLogoClick = () => {
           </div>
         </div>
 
-        
         <div className="flex-1 overflow-auto p-8">
           {contentComponents[activeTab]}
         </div>

@@ -36,9 +36,9 @@ const People = () => {
       image: "https://thumbs.dreamstime.com/b/businessman-cartoon-character-people-face-profiles-avatars-icons-close-up-image-pointing-man-vector-flat-illustration-234310250.jpg"
     },
     {
-        name: "Virat Kohli",
+        name: "Glenn Smith",
         role: "Web Developer",
-        email: "virat.k@fox.ai",
+        email: "glenn.s@fox.ai",
         phone: "+1 (555) 456-1203",
         image: "https://cdn2.vectorstock.com/i/1000x1000/81/01/man-with-beard-only-face-vector-23318101.jpg"
       }
