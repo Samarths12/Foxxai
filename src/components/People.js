@@ -10,35 +10,35 @@ const People = () => {
     {
       name: "Sarah Johnson",
       role: "AI Research Lead",
-      email: "sarah.j@fox.ai",
+      email: "sarah.j@convolabs.ai",
       phone: "+1 (555) 123-4567",
       image: "https://cdn.vectorstock.com/i/500p/07/35/cute-girl-face-in-cartoon-style-vector-47890735.jpg"
     },
     {
       name: "Michael Chen",
       role: "Senior Data Scientist",
-      email: "michael.c@fox.ai",
+      email: "michael.c@convolabs.ai",
       phone: "+1 (555) 234-5678",
       image: "https://img.freepik.com/free-vector/smiling-cartoon-mans-face_1308-174269.jpg"
     },
     {
       name: "Elena Rodriguez",
       role: "ML Engineer",
-      email: "elena.r@fox.ai",
+      email: "elena.r@convolab.ai",
       phone: "+1 (555) 345-6789",
       image: "https://img.freepik.com/free-vector/male-teen-cartoon-wearing-hat_1308-157110.jpg"
     },
     {
       name: "Alex Kim",
       role: "Research Scientist",
-      email: "alex.k@fox.ai",
+      email: "alex.k@convolabs.ai",
       phone: "+1 (555) 456-7890",
       image: "https://thumbs.dreamstime.com/b/businessman-cartoon-character-people-face-profiles-avatars-icons-close-up-image-pointing-man-vector-flat-illustration-234310250.jpg"
     },
     {
         name: "Glenn Smith",
         role: "Web Developer",
-        email: "glenn.s@fox.ai",
+        email: "glenn.s@convolabs.ai",
         phone: "+1 (555) 456-1203",
         image: "https://cdn2.vectorstock.com/i/1000x1000/81/01/man-with-beard-only-face-vector-23318101.jpg"
       }

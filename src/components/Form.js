@@ -7,7 +7,6 @@ const ChatBox = () => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
 
-  
   useEffect(() => {
     if (isChatOpen && messages.length === 0) {
       setMessages([
@@ -48,14 +47,14 @@ const ChatBox = () => {
         </button>
       </div>
       {isChatOpen && (
-        <div className="fixed bottom-20 right-8 bg-white w-80 max-w-full shadow-lg rounded-xl border border-gray-300 z-50">
+        <div className="fixed bottom-20 right-8 bg-white w-80 max-w-full shadow-lg rounded-xl border border-gray-300 z-50" style={{ maxHeight: "calc(100vh - 160px)", overflow: "hidden" }}>
           <div className="bg-gradient-to-r from-blue-400 to-blue-600 text-white p-4 rounded-t-xl flex justify-between items-center">
             <h3 className="font-bold text-lg">Chat with Us</h3>
             <button onClick={toggleChat} className="text-white font-bold text-lg">
               ×
             </button>
           </div>
-          <div className="p-4 h-64 overflow-y-auto">
+          <div className="p-4 h-64 overflow-y-auto" style={{ maxHeight: "calc(100vh - 240px)" }}>
             {messages.map((message, index) => (
               <div
                 key={index}

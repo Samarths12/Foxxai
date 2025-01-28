@@ -7,11 +7,12 @@ import Features from "./components/Features";
 import Footer from "./components/Footer";
 import Form from "./components/Form";
 import About from "./components/About";
-import ImageCarousel from "./components/ImageCarousel";
 import AuthForm from "./components/AuthForm";
 import Dashboard from "./components/Dashboard";
 import People from "./components/People";
-
+import CareersPage from "./components/CareersPage";
+import AIComponentDemo from "./components/AIComponentDemo";
+import BlogPage from "./components/BlogPage";  // New import for Blog component
 
 const AppLayout = ({ handleLogin }) => {
   const location = useLocation();
@@ -27,9 +28,9 @@ const AppLayout = ({ handleLogin }) => {
             <>
               <Hero />
               <Info />
-              <ImageCarousel />
               <Features />
               <Form />
+              <AIComponentDemo />
               <People />
               <About />
               <Footer />
@@ -41,20 +42,26 @@ const AppLayout = ({ handleLogin }) => {
           element={<AuthForm onLogin={handleLogin} />}
         />
         <Route 
-          path="/dashboard" 
-          element={<Dashboard />} 
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+        <Route
+          path="/careers"
+          element={<CareersPage />}
+        />
+        <Route
+          path="/blog/:id"
+          element={<BlogPage />}  // New route for blog pages
         />
       </Routes>
     </div>
   );
 };
 
-
 const App = () => {
- 
   const handleLogin = () => {
     localStorage.setItem("isAuthenticated", "true");
-    window.dispatchEvent(new Event('storage')); 
+    window.dispatchEvent(new Event('storage'));
   };
 
   return (

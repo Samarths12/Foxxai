@@ -1,72 +1,145 @@
-import React from "react";
-import { FaProjectDiagram, FaRegComment, FaUsers } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { FaProjectDiagram, FaRegComment, FaUsers, FaSearch } from "react-icons/fa";
 
-const Hero = () => {
+function Hero() {
+  const [currentWord, setCurrentWord] = useState("AI");
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [searchFocus, setSearchFocus] = useState(false);
+  const words = ["AI", "Marketing", "Autonomous Vehicles", "Customer Service", "HR", "Sales"];
+  const wordRef = useRef(currentWord);
+
+  useEffect(() => {
+    let interval;
+    let flipTimer;
+    let resetTimer;
+
+    const startFlip = () => {
+      setIsFlipping(true);
+      flipTimer = setTimeout(() => {
+        const currentIndex = words.indexOf(wordRef.current);
+        const newWord = words[(currentIndex + 1) % words.length];
+        setCurrentWord(newWord);
+        wordRef.current = newWord;
+      }, 250);
+
+      resetTimer = setTimeout(() => {
+        setIsFlipping(false);
+      }, 500);
+    };
+
+    interval = setInterval(startFlip, 2000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(flipTimer);
+      clearTimeout(resetTimer);
+    };
+  }, []);
+
   return (
-    <section className="relative overflow-hidden min-h-screen bg-gradient-to-b from-white via-purple-50 to-purple-200">
-      
-      <div className="absolute inset-0 overflow-hidden">
+    <section className="relative min-h-[100dvh] bg-gradient-to-b from-white via-purple-50 to-purple-200">
+      {/* Background Blobs - Adjusted for better mobile display */}
+      <div className="absolute inset-0">
         <div className="absolute w-full h-full opacity-30">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-          <div className="absolute -top-16 right-1/4 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-2xl animate-pulse animation-delay-1000"></div>
+          <div className="absolute top-0 -left-4 w-48 md:w-72 h-48 md:h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+          <div className="absolute top-0 -right-4 w-48 md:w-72 h-48 md:h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-20 w-48 md:w-72 h-48 md:h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+          <div className="absolute -top-16 right-1/4 w-64 md:w-96 h-64 md:h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-2xl animate-pulse animation-delay-1000"></div>
         </div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 pt-20 pb-32">
-        
+      {/* Main Content */}
+      <div className="relative z-10 container mx-auto px-4 py-8 md:pt-20 md:pb-32">
         <div className="text-center max-w-5xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 animate-slide-up">
-            <span className="block animate-fade-in-delay">All AI Agents</span>
-            <span className="block mt-2 animate-fade-in-quick">need to run your Business</span>
+          {/* Heading - Improved responsive text sizing */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl mb-4 md:mb-6 text-gray-800 px-2">
+            <span className="block">
+              All{" "}
+              <span
+                className={`inline-block text-blue-600 transition-transform duration-500 ${
+                  isFlipping ? "flip-backward" : ""
+                }`}
+              >
+                {currentWord}
+              </span>{" "}
+              agent
+            </span>
+            <span className="block mt-2">need to run your Business</span>
           </h1>
-          
-          <p className="text-lg md:text-xl mb-10 text-gray-700 leading-relaxed animate-slide-up">
-            <span className="block">Fox.AI taps into the full potential</span>
-            <span className="block">of enterprise data to develop reliable Generative AI Solutions you can count on.</span>
+
+          {/* Description - Adjusted padding and font sizes */}
+          <p className="text-base sm:text-lg md:text-xl mb-8 md:mb-12 text-gray-700 leading-relaxed px-4">
+            <span className="block">Convolabs.AI taps into the full potential</span>
+            <span className="block">
+              of enterprise data to develop reliable Generative AI Solutions you can count on.
+            </span>
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-            <button className="px-8 py-4 text-lg font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-blue-300/50 animate-bounce">
-              Get Started
-            </button>
-            <button className="px-8 py-4 text-lg font-semibold rounded-xl bg-purple-600 text-white hover:bg-purple-700 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-purple-300/50 animate-bounce animation-delay-500">
-              Talk to Fox
-            </button>
-          </div>
-
-          <div className="mt-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 animate-fade-in">
-              AI AI Everywhere, <br /> Not an AI that works!
-            </h2>
-            <p className="text-lg md:text-xl text-gray-700 mb-12 leading-relaxed animate-slide-up">
-              Whether you're building custom large language models or using pre-built, Fox.AI <br /> 
-              makes you the key maker; where data is the key.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-4xl mx-auto">
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-sm hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-blue-300/50 border border-purple-200 animate-fade-in">
-                <FaProjectDiagram className="text-4xl mb-4 mx-auto text-blue-600 animate-spin-slow" />
-                <p className="text-2xl font-bold text-gray-800">500+</p>
-                <p className="text-lg text-gray-600">Projects</p>
-              </div>
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-sm hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-purple-300/50 border border-purple-200 animate-fade-in animation-delay-500">
-                <FaRegComment className="text-4xl mb-4 mx-auto text-purple-600 animate-spin-slow" />
-                <p className="text-2xl font-bold text-gray-800">1,700,000+</p>
-                <p className="text-lg text-gray-600">Annotations</p>
-              </div>
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-sm hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-indigo-300/50 border border-purple-200 animate-fade-in animation-delay-1000">
-                <FaUsers className="text-4xl mb-4 mx-auto text-indigo-600 animate-spin-slow" />
-                <p className="text-2xl font-bold text-gray-800">100+</p>
-                <p className="text-lg text-gray-600">Clients</p>
+          {/* Search Bar - Mobile-friendly padding and sizing */}
+          <div className="max-w-3xl mx-auto mb-8 md:mb-16 px-4">
+            <div
+              className={`relative group transition-all duration-300 ${
+                searchFocus ? "scale-105" : ""
+              }`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl md:rounded-2xl blur-md opacity-75 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative bg-white rounded-xl md:rounded-2xl shadow-xl">
+                <div className="flex items-center p-3 md:p-4">
+                  <FaSearch className="text-gray-400 text-lg md:text-xl mr-3 md:mr-4" />
+                  <input
+                    type="text"
+                    placeholder="What AI solution are you looking for?"
+                    className="w-full text-base md:text-lg text-gray-800 placeholder-gray-400 bg-transparent border-none outline-none"
+                    onFocus={() => setSearchFocus(true)}
+                    onBlur={() => setSearchFocus(false)}
+                  />
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Stats Grid - Improved grid responsiveness */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-10 max-w-4xl mx-auto px-4">
+            {[
+              { icon: FaProjectDiagram, color: "blue", count: "500+", label: "Projects" },
+              { icon: FaRegComment, color: "purple", count: "1,700,000+", label: "Annotations" },
+              { icon: FaUsers, color: "indigo", count: "100+", label: "Clients" }
+            ].map((stat, index) => (
+              <div
+                key={index}
+                className="p-6 md:p-8 rounded-xl md:rounded-2xl bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-sm hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-blue-300/50 border border-purple-200 group"
+              >
+                <stat.icon className={`text-3xl md:text-4xl mb-3 md:mb-4 mx-auto text-${stat.color}-600 group-hover:animate-bounce`} />
+                <p className="text-xl md:text-2xl font-bold text-gray-800">{stat.count}</p>
+                <p className="text-base md:text-lg text-gray-600">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes flipBackward {
+          0% {
+            transform: rotateX(0deg);
+            opacity: 1;
+          }
+          50% {
+            transform: rotateX(-90deg);
+            opacity: 0;
+          }
+          100% {
+            transform: rotateX(0deg);
+            opacity: 1;
+          }
+        }
+
+        .flip-backward {
+          animation: flipBackward 0.5s ease-in-out;
+        }
+      `}</style>
     </section>
   );
-};
+}
 
 export default Hero;
