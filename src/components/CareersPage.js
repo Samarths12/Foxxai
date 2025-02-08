@@ -1,38 +1,38 @@
 import React from "react";
+import './tailwindstyles.css';
 
 const CareersPage = () => {
   return (
     <div className="bg-sky-100 font-sans min-h-screen">
       {/* Header Section */}
       <header className="bg-gradient-to-r from-blue-400 via-indigo-500 to-indigo-700 text-white py-8">
-  <div className="container mx-auto px-4 text-center">
-    <h1 className="text-4xl font-semibold animate-fade-in-down">
-      Careers at ConvolabsAI
-    </h1>
-    <p className="text-lg mt-2 font-medium animate-fade-in-up">
-      Join us in shaping the future!
-    </p>
-    <p
-      className="text-lg mt-4 font-semibold bg-clip-text text-black"
-    >
-      Fail Fast Learn Fast
-    </p>
-  </div>
-</header>
-
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl font-semibold animate-fade-in-down">
+            Careers at ConvolabsAI
+          </h1>
+          <p className="text-lg mt-2 font-medium animate-fade-in-up">
+            Join us in shaping the future!
+          </p>
+          <p
+            className="text-lg mt-4 font-semibold bg-clip-text text-black"
+          >
+            Fail Fast Learn Fast
+          </p>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
         {/* Why Join Us Section */}
         <section className="mb-12">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center animate-fade-in-down">
-    Why Join Our Team?
-  </h2>
-  <p
-    className="text-lg font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-purple-600 to-pink-500 mb-6 animate-fade-in-up"
-  >
-    We encourage exploring and experimenting your interest.
-  </p>
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center animate-fade-in-down">
+            Why Join Our Team?
+          </h2>
+          <p
+            className="text-lg font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-purple-600 to-pink-500 mb-6 animate-fade-in-up"
+          >
+            We encourage exploring and experimenting your interest.
+          </p>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -181,8 +181,8 @@ const CareersPage = () => {
 
       {/* Footer */}
       <footer className="font-bold bg-white py-6 text-center text-[#333]">
-      <p>© 2025 ConvolabsAI. All rights reserved.</p>
-    </footer>
+        <p>© 2025 ConvolabsAI. All rights reserved.</p>
+      </footer>
     </div>
   );
 };

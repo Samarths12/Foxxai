@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaProjectDiagram, FaRegComment, FaUsers, FaSearch } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function Hero() {
   const [currentWord, setCurrentWord] = useState("AI");
@@ -7,6 +8,7 @@ function Hero() {
   const [searchFocus, setSearchFocus] = useState(false);
   const words = ["AI", "Marketing", "Autonomous Vehicles", "Customer Service", "HR", "Sales"];
   const wordRef = useRef(currentWord);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let interval;
@@ -96,6 +98,16 @@ function Hero() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Book a Demo Button - Updated with reduced size */}
+          <div className="mb-8 md:mb-12">
+            <button
+              onClick={() => navigate("/signin")}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+            >
+              Join the Waitlist
+            </button>
           </div>
 
           {/* Stats Grid - Improved grid responsiveness */}

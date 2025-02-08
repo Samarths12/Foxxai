@@ -11,7 +11,6 @@ import AuthForm from "./components/AuthForm";
 import Dashboard from "./components/Dashboard";
 import People from "./components/People";
 import CareersPage from "./components/CareersPage";
-import AIComponentDemo from "./components/AIComponentDemo";
 import BlogPage from "./components/BlogPage";  // New import for Blog component
 
 const AppLayout = ({ handleLogin }) => {
@@ -30,7 +29,6 @@ const AppLayout = ({ handleLogin }) => {
               <Info />
               <Features />
               <Form />
-              <AIComponentDemo />
               <People />
               <About />
               <Footer />
