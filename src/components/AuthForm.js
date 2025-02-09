@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaPhone, FaArrowRight, FaSpinner, FaSmile } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaArrowRight, FaSmile, FaPhone } from 'react-icons/fa';
 import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
 
 // Firebase configuration
@@ -17,16 +18,16 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
 const ConversationalAuth = () => {
   const [step, setStep] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [userData, setUserData] = useState({
     name: '',
     email: '',
-    phone: ''
+    mobile: '',
   });
   const [currentError, setCurrentError] = useState('');
   const [queuePosition, setQueuePosition] = useState(null);
@@ -39,22 +40,19 @@ const ConversationalAuth = () => {
       text: "Hi there! 👋 What's your name?",
       field: 'name',
       icon: <FaUser className="text-purple-500" size={24} />,
-      validation: (value) => value.length >= 2 ? '' : 'Please enter your full name',
-      placeholder: 'Enter your full name'
+      validation: (value) => value.length >= 2 ? '' : 'Please enter your full name'
     },
     {
       text: "Great to meet you! What's your email address?",
       field: 'email',
       icon: <FaEnvelope className="text-purple-500" size={24} />,
-      validation: (value) => /\S+@\S+\.\S+/.test(value) ? '' : 'Please enter a valid email',
-      placeholder: 'Enter your email address'
+      validation: (value) => /\S+@\S+\.\S+/.test(value) ? '' : 'Please enter a valid email'
     },
     {
-      text: "Almost done! What's your contact number?",
-      field: 'phone',
+      text: "Almost done! What's your mobile number?",
+      field: 'mobile',
       icon: <FaPhone className="text-purple-500" size={24} />,
-      validation: (value) => /^\+?[\d\s-]{10,}$/.test(value) ? '' : 'Please enter a valid phone number',
-      placeholder: 'Enter your contact number'
+      validation: (value) => /^\d{10}$/.test(value) ? '' : 'Please enter a valid 10-digit mobile number'
     }
   ];
 
@@ -77,14 +75,21 @@ const ConversationalAuth = () => {
       setStep(step + 1);
       setCurrentError('');
     } else {
-      setLoading(true);
       try {
+        // Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          userData.email,
+          userData.password
+        );
+
         // Add user to Firestore queue
         const queueRef = collection(db, 'queue');
-        const docRef = await addDoc(queueRef, {
+        await addDoc(queueRef, {
+          userId: userCredential.user.uid,
           name: userData.name,
           email: userData.email,
-          phone: userData.phone,
+          mobile: userData.mobile,
           timestamp: new Date().toISOString(),
           status: 'waiting'
         });
@@ -97,24 +102,20 @@ const ConversationalAuth = () => {
         );
         
         const snapshot = await getDocs(q);
-        const position = snapshot.docs.findIndex(doc => 
-          doc.data().email === userData.email && 
-          doc.data().phone === userData.phone
-        ) + 1;
+        const position = snapshot.docs.findIndex(doc => doc.data().email === userData.email) + 1;
         
+        localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userEmail', userData.email);
-        localStorage.setItem('userPhone', userData.phone);
         window.dispatchEvent(new Event('storage'));
 
+        // Update state to show success message
         setQueuePosition(position);
         setMessage(`🎉 Welcome aboard, ${userData.name}!`);
-        setLoading(false);
         setRegistrationComplete(true);
         setShowSuccessMessage(true);
 
       } catch (error) {
         console.error('Error during registration:', error);
-        setLoading(false);
         setMessage(`Error: ${error.message}`);
       }
     }
@@ -137,7 +138,7 @@ const ConversationalAuth = () => {
             onClick={() => navigate('/dashboard')}
             className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2 rounded-lg hover:shadow-lg transform transition hover:scale-105"
           >
-            Go to Dashboard
+            Dashboard
           </button>
         )}
       </div>
@@ -153,7 +154,7 @@ const ConversationalAuth = () => {
         <h3 className="text-3xl font-bold text-purple-700 mb-4">{message}</h3>
         <div className="bg-purple-50 rounded-lg p-6 mb-6 animate-slide-up">
           <p className="text-lg text-gray-700 mb-4">
-            Thank you for joining our queue, <span className="font-semibold">{userData.name}</span>! 🎉
+            Thank you for registering with us, <span className="font-semibold">{userData.name}</span>! 🎉
           </p>
           {queuePosition && (
             <>
@@ -161,15 +162,15 @@ const ConversationalAuth = () => {
               <p className="text-5xl font-bold text-purple-500 mb-4 animate-pulse">#{queuePosition}</p>
             </>
           )}
-          <p className="text-gray-600 mb-2">We'll contact you at: {userData.phone}</p>
-          <p className="text-gray-600 mb-4">Updates will be sent to: {userData.email}</p>
-          <p className="text-sm text-purple-600">We'll notify you as soon as it's your turn!</p>
+          <p className="text-gray-600 mb-2">We've received your registration details.</p>
+          <p className="text-gray-600 mb-4">Please wait patiently while we process your request.</p>
+          <p className="text-sm text-purple-600">You'll be notified as soon as it's your turn!</p>
         </div>
         <button
           onClick={() => navigate('/dashboard')}
           className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-8 py-3 rounded-lg hover:shadow-lg transform transition hover:scale-105 flex items-center justify-center space-x-2 mx-auto animate-fade-in"
         >
-          <span>View Dashboard</span>
+          <span>Go to Dashboard</span>
           <FaArrowRight size={16} />
         </button>
       </div>
@@ -195,19 +196,19 @@ const ConversationalAuth = () => {
               </div>
             )}
 
-            {!loading && !registrationComplete && (
+            {!registrationComplete && (
               <div className="space-y-4">
                 <div className="flex items-start space-x-4">
                   {questions[step].icon}
                   <div className="flex-1">
                     <p className="text-lg text-gray-800 mb-4">{questions[step].text}</p>
                     <input
-                      type={questions[step].field === 'email' ? 'email' : 'text'}
+                      type={questions[step].field.includes('password') ? 'password' : 'text'}
                       value={userData[questions[step].field]}
                       onChange={handleInputChange}
                       onKeyPress={handleKeyPress}
                       className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 text-gray-800"
-                      placeholder={questions[step].placeholder}
+                      placeholder={`Enter your ${questions[step].field}`}
                       autoFocus
                     />
                     {currentError && (
@@ -220,17 +221,9 @@ const ConversationalAuth = () => {
                   onClick={handleNext}
                   className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transform transition hover:scale-105 flex items-center justify-center space-x-2"
                 >
-                  <span>{step === questions.length - 1 ? 'Complete Registration' : 'Continue'}</span>
+                  <span>Continue</span>
                   <FaArrowRight size={16} />
                 </button>
-              </div>
-            )}
-
-            {loading && (
-              <div className="text-center py-12">
-                <FaSpinner className="animate-spin h-12 w-12 text-purple-500 mx-auto mb-4" />
-                <p className="text-gray-600">Processing your registration...</p>
-                <p className="text-sm text-gray-500 mt-2">Almost there!</p>
               </div>
             )}
 
