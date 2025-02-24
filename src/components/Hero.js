@@ -6,7 +6,7 @@ function Hero() {
   const [currentWord, setCurrentWord] = useState("AI");
   const [isFlipping, setIsFlipping] = useState(false);
   const [searchFocus, setSearchFocus] = useState(false);
-  const words = ["AI", "Marketing", "Autonomous Vehicles", "Customer Service", "HR", "Sales"];
+  const words = ["AI", "Marketing", "Autonomous Vehicles", "Customer Service", "Sales"];
   const wordRef = useRef(currentWord);
   const navigate = useNavigate();
 
@@ -64,16 +64,16 @@ function Hero() {
               >
                 {currentWord}
               </span>{" "}
-              agent
+              <span className="text-blue-600">agent</span>
             </span>
             <span className="block mt-2">need to run your Business</span>
           </h1>
 
           {/* Description - Adjusted padding and font sizes */}
           <p className="text-base sm:text-lg md:text-xl mb-8 md:mb-12 text-gray-700 leading-relaxed px-4">
-            <span className="block">Empowering Innovation with AI: </span>
+            <span className="block">AI Agents That work for you: </span>
             <span className="block">
-            Tailored Solutions for your organizations, Intelligence and Growth.
+            Cutting cost, Refining your feedback loop and 10X scaling your growth.
             </span>
           </p>
 

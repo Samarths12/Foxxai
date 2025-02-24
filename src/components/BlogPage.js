@@ -1,5 +1,7 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+
+import { IoHomeOutline } from 'react-icons/io5';
 
 const BlogContent = {
   1: {
@@ -241,49 +243,77 @@ const BlogContent = {
 
 const BlogPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const blog = BlogContent[id];
 
-  if (!blog) return <div className="text-gray-800">Blog not found</div>;
+  if (!blog) return <div className="text-gray-800 text-center py-20">Blog not found</div>;
+
+  const recommendedBlogs = Object.entries(BlogContent)
+    .filter(([blogId]) => blogId !== id)
+    .map(([blogId, blogData]) => ({
+      id: blogId,
+      ...blogData
+    }));
 
   return (
-    <div className="min-h-screen bg-sky-100 py-12">
-      <div className="max-w-4xl mx-auto px-4">
-        <article className="bg-white shadow-2xl rounded-2xl overflow-hidden">
-          <img 
-            src={blog.heroImage} 
-            alt={blog.title} 
-            className="w-full h-[500px] object-cover"
-          />
-          <div className="p-10">
-            <div className="flex items-center mb-6 text-gray-600">
-              <span className="mr-4">{blog.author}</span>
-              <span className="mr-4">|</span>
-              <span className="mr-4">{blog.date}</span>
-              <span className="mr-4">|</span>
-              <span>{blog.readTime}</span>
-            </div>
-            <div className="mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 py-16">
+      {/* Home Button */}
+      <div className="fixed top-8 left-8 z-50">
+        <Link
+          to="/features"
+          className="flex items-center gap-2 bg-white/95 p-3 rounded-full shadow-md hover:bg-white hover:shadow-lg hover:scale-110 transition-all duration-300 border border-blue-100"
+        >
+          <IoHomeOutline className="w-6 h-6 text-indigo-600" />
+        </Link>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 md:px-8">
+        {/* Main Blog Content */}
+        <article className="bg-white shadow-xl rounded-2xl overflow-hidden mb-16 border border-purple-100/50">
+          <div className="relative">
+            <img 
+              src={blog.heroImage} 
+              alt={blog.title} 
+              className="w-full h-[500px] object-cover transition-transform duration-700 hover:scale-105"
+            />
+            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
               {blog.tags.map((tag, index) => (
                 <span 
                   key={index} 
-                  className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm mr-2 mb-2"
+                  className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm shadow-sm"
                 >
                   {tag}
                 </span>
               ))}
             </div>
-            <h1 className="text-4xl font-bold mb-6 text-gray-900">{blog.title}</h1>
+          </div>
+          <div className="p-10 bg-gradient-to-b from-white to-blue-50/20">
+            <div className="flex items-center mb-6 text-gray-600 text-sm">
+              <span className="mr-4 font-medium">{blog.author}</span>
+              <span className="mr-4">|</span>
+              <span className="mr-4">{blog.date}</span>
+              <span className="mr-4">|</span>
+              <span className="bg-blue-100/50 px-2 py-1 rounded-full text-blue-700">{blog.readTime}</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-8 text-gray-900 leading-tight">{blog.title}</h1>
             {blog.content.map((section, index) => {
               switch(section.type) {
                 case 'paragraph':
-                  return <p key={index} className="mb-4 text-gray-700 leading-relaxed">{section.text}</p>;
+                  return <p key={index} className="mb-6 text-gray-700 leading-relaxed text-lg font-light">{section.text}</p>;
                 case 'heading':
-                  return <h2 key={index} className="text-2xl font-semibold mt-6 mb-4 text-blue-600">{section.text}</h2>;
+                  return (
+                    <h2 
+                      key={index} 
+                      className="text-2xl md:text-3xl font-semibold mt-8 mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600"
+                    >
+                      {section.text}
+                    </h2>
+                  );
                 case 'list':
                   return (
-                    <ul key={index} className="list-disc list-inside mb-4 text-gray-700 pl-4">
+                    <ul key={index} className="list-disc list-inside mb-6 text-gray-700 pl-6 text-lg">
                       {section.items.map((item, i) => (
-                        <li key={i} className="mb-2">{item}</li>
+                        <li key={i} className="mb-3">{item}</li>
                       ))}
                     </ul>
                   );
@@ -291,7 +321,7 @@ const BlogPage = () => {
                   return (
                     <blockquote 
                       key={index} 
-                      className="border-l-4 border-blue-500 pl-4 py-2 my-6 italic text-gray-600"
+                      className="border-l-4 border-indigo-500 pl-6 py-4 my-8 italic text-gray-600 bg-blue-50/50 rounded-r-lg shadow-sm"
                     >
                       {section.text}
                     </blockquote>
@@ -301,15 +331,60 @@ const BlogPage = () => {
               }
             })}
           </div>
-          <div className="p-10 bg-gray-100 flex justify-between items-center">
-            <Link 
-              to="/" 
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-            >
-              Back to Home
-            </Link>
-          </div>
         </article>
+
+        {/* Recommended Reads Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+            Recommended Reads
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {recommendedBlogs.map((recommendedBlog) => (
+              <div 
+                key={recommendedBlog.id}
+                className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-blue-100/30"
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate(`/blog/${recommendedBlog.id}`);
+                }}
+              >
+                <div className="relative">
+                  <img 
+                    src={recommendedBlog.heroImage}
+                    alt={recommendedBlog.title}
+                    className="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
+                  />
+                  <div className="absolute top-2 left-2 bg-indigo-500/90 px-2 py-1 rounded-full text-xs text-white">
+                    {recommendedBlog.tags[0]}
+                  </div>
+                </div>
+                <div className="p-6 bg-gradient-to-b from-white to-purple-50/20">
+                  <div className="flex items-center mb-4 text-sm text-gray-600">
+                    <span>{recommendedBlog.author}</span>
+                    <span className="mx-2">•</span>
+                    <span className="bg-blue-100/50 px-2 py-1 rounded-full text-blue-700">{recommendedBlog.readTime}</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-indigo-600 transition-colors duration-200">
+                    {recommendedBlog.title}
+                  </h3>
+                  <p className="text-gray-600 line-clamp-2 text-base font-light">
+                    {recommendedBlog.content[0].text}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {recommendedBlog.tags.slice(0, 2).map((tag, index) => (
+                      <span 
+                        key={index}
+                        className="text-sm bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 px-2 py-1 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

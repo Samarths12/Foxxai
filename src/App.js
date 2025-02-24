@@ -1,5 +1,12 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { 
+  BrowserRouter as Router, 
+  Routes, 
+  Route, 
+  useLocation, 
+  Navigate 
+} from "react-router-dom";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Info from "./components/Info";
@@ -9,17 +16,61 @@ import Form from "./components/Form";
 import About from "./components/About";
 import AuthForm from "./components/AuthForm";
 import Dashboard from "./components/Dashboard";
-// import People from "./components/People";
 import CareersPage from "./components/CareersPage";
-import BlogPage from "./components/BlogPage";  // New import for Blog component
+import BlogPage from "./components/BlogPage";
+import AIAgentsPage from "./components/AIAgentsPage";
+import DocsPage from "./components/DocsPage";
+import PricingPage from "./components/PricingPage";
 
-const AppLayout = ({ handleLogin }) => {
+// Protected Route wrapper component
+const ProtectedRoute = ({ children }) => {
+  const auth = getAuth();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+      setAuthChecked(true);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  return children;
+};
+
+const AppLayout = () => {
   const location = useLocation();
   const isDashboardRoute = location.pathname === '/dashboard';
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const shouldShowHeader = !isDashboardRoute;
 
   return (
     <div className="bg-black">
-      {!isDashboardRoute && <Header />}
+      {shouldShowHeader && <Header isAuthenticated={isAuthenticated} />}
       <Routes>
         <Route
           path="/"
@@ -27,21 +78,36 @@ const AppLayout = ({ handleLogin }) => {
             <>
               <Hero />
               <Info />
-              <Features />
               <Form />
-              {/* <People /> */}
               <About />
               <Footer />
             </>
           }
         />
         <Route
-          path="/signin"
-          element={<AuthForm onLogin={handleLogin} />}
+          path="/features"
+          element={
+            <>
+              <Features />
+              <Footer />
+            </>
+          }
         />
-        <Route 
+        <Route
+          path="/signin"
+          element={
+            isAuthenticated ? 
+            <Navigate to="/dashboard" replace /> : 
+            <AuthForm />
+          }
+        />
+        <Route
           path="/dashboard"
-          element={<Dashboard />}
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/careers"
@@ -49,7 +115,24 @@ const AppLayout = ({ handleLogin }) => {
         />
         <Route
           path="/blog/:id"
-          element={<BlogPage />}  // New route for blog pages
+          element={<BlogPage />}
+        />
+        <Route
+          path="/aiagents"
+          element={<AIAgentsPage />}
+        />
+        <Route
+          path="/docs"
+          element={<DocsPage />}
+        />
+        <Route
+          path="/pricing"
+          element={<PricingPage />}
+        />
+        {/* Catch-all route for unknown paths */}
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
         />
       </Routes>
     </div>
@@ -57,16 +140,12 @@ const AppLayout = ({ handleLogin }) => {
 };
 
 const App = () => {
-  const handleLogin = () => {
-    localStorage.setItem("isAuthenticated", "true");
-    window.dispatchEvent(new Event('storage'));
-  };
-
   return (
     <Router>
-      <AppLayout handleLogin={handleLogin} />
+      <AppLayout />
     </Router>
   );
 };
 
 export default App;
+

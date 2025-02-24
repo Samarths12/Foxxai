@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaLock, FaArrowRight, FaSmile, FaPhone } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaGoogle, FaPhone } from 'react-icons/fa';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged
+} from 'firebase/auth';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -20,219 +27,257 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
 
-const ConversationalAuth = () => {
-  const [step, setStep] = useState(0);
-  const [message, setMessage] = useState('');
-  const [userData, setUserData] = useState({
+const AuthComponent = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
-    mobile: '',
+    password: '',
+    mobile: ''
   });
-  const [currentError, setCurrentError] = useState('');
-  const [queuePosition, setQueuePosition] = useState(null);
-  const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const questions = [
-    {
-      text: "Hi there! 👋 What's your name?",
-      field: 'name',
-      icon: <FaUser className="text-purple-500" size={24} />,
-      validation: (value) => value.length >= 2 ? '' : 'Please enter your full name'
-    },
-    {
-      text: "Great to meet you! What's your email address?",
-      field: 'email',
-      icon: <FaEnvelope className="text-purple-500" size={24} />,
-      validation: (value) => /\S+@\S+\.\S+/.test(value) ? '' : 'Please enter a valid email'
-    },
-    {
-      text: "Almost done! What's your mobile number?",
-      field: 'mobile',
-      icon: <FaPhone className="text-purple-500" size={24} />,
-      validation: (value) => /^\d{10}$/.test(value) ? '' : 'Please enter a valid 10-digit mobile number'
-    }
-  ];
+  // Check if the user is already logged in
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate('/dashboard'); // Redirect to dashboard if user is logged in
+      }
+    });
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !currentError) {
-      handleNext();
-    }
-  };
+    return () => unsubscribe();
+  }, [navigate]);
 
-  const handleNext = async () => {
-    const currentQuestion = questions[step];
-    const validationError = currentQuestion.validation(userData[currentQuestion.field]);
-    
-    if (validationError) {
-      setCurrentError(validationError);
-      return;
-    }
-
-    if (step < questions.length - 1) {
-      setStep(step + 1);
-      setCurrentError('');
-    } else {
-      try {
-        // Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          userData.email,
-          userData.password
-        );
-
-        // Add user to Firestore queue
-        const queueRef = collection(db, 'queue');
-        await addDoc(queueRef, {
-          userId: userCredential.user.uid,
-          name: userData.name,
-          email: userData.email,
-          mobile: userData.mobile,
-          timestamp: new Date().toISOString(),
-          status: 'waiting'
-        });
-
-        // Calculate queue position
-        const q = query(
-          queueRef,
-          where('status', '==', 'waiting'),
-          orderBy('timestamp', 'asc')
-        );
-        
-        const snapshot = await getDocs(q);
-        const position = snapshot.docs.findIndex(doc => doc.data().email === userData.email) + 1;
-        
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', userData.email);
-        window.dispatchEvent(new Event('storage'));
-
-        // Update state to show success message
-        setQueuePosition(position);
-        setMessage(`🎉 Welcome aboard, ${userData.name}!`);
-        setRegistrationComplete(true);
-        setShowSuccessMessage(true);
-
-      } catch (error) {
-        console.error('Error during registration:', error);
-        setMessage(`Error: ${error.message}`);
+  const validateForm = () => {
+    const newErrors = {};
+    if (!isLogin) {
+      if (!formData.name || formData.name.length < 2) {
+        newErrors.name = 'Name must be at least 2 characters long';
+      }
+      if (!formData.mobile || !/^\d{10}$/.test(formData.mobile)) {
+        newErrors.mobile = 'Please enter a valid 10-digit mobile number';
       }
     }
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    if (!formData.password || formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters long';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e) => {
-    const { value } = e.target;
-    setUserData({ ...userData, [questions[step].field]: value });
-    setCurrentError('');
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
-  const progress = ((step + 1) / questions.length) * 100;
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-  const Header = () => (
-    <div className="fixed top-0 left-0 right-0 bg-white shadow-md p-4 z-10">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-purple-700">Queue Demo</h1>
-        {registrationComplete && (
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2 rounded-lg hover:shadow-lg transform transition hover:scale-105"
-          >
-            Dashboard
-          </button>
-        )}
-      </div>
-    </div>
-  );
+    setLoading(true);
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      } else {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        
+        // Store additional user data in Firestore
+        await setDoc(doc(db, 'users', userCredential.user.uid), {
+          name: formData.name,
+          email: formData.email,
+          mobile: formData.mobile,
+          createdAt: new Date().toISOString()
+        });
+      }
 
-  const SuccessMessage = () => (
-    <div className="space-y-6 animate-fade-in">
-      <div className="text-center">
-        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-          <FaSmile className="w-12 h-12 text-green-500" />
-        </div>
-        <h3 className="text-3xl font-bold text-purple-700 mb-4">{message}</h3>
-        <div className="bg-purple-50 rounded-lg p-6 mb-6 animate-slide-up">
-          <p className="text-lg text-gray-700 mb-4">
-            Thank you for registering with us, <span className="font-semibold">{userData.name}</span>! 🎉
-          </p>
-          {queuePosition && (
-            <>
-              <p className="text-lg font-semibold text-gray-700 mb-2">Your position in queue:</p>
-              <p className="text-5xl font-bold text-purple-500 mb-4 animate-pulse">#{queuePosition}</p>
-            </>
-          )}
-          <p className="text-gray-600 mb-2">We've received your registration details.</p>
-          <p className="text-gray-600 mb-4">Please wait patiently while we process your request.</p>
-          <p className="text-sm text-purple-600">You'll be notified as soon as it's your turn!</p>
-        </div>
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-8 py-3 rounded-lg hover:shadow-lg transform transition hover:scale-105 flex items-center justify-center space-x-2 mx-auto animate-fade-in"
-        >
-          <span>Go to Dashboard</span>
-          <FaArrowRight size={16} />
-        </button>
-      </div>
-    </div>
-  );
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', formData.email);
+      window.dispatchEvent(new Event('storage'));
+      navigate('/dashboard'); // Redirect to dashboard after successful login/signup
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        submit: error.message
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      
+      // Store user data in Firestore
+      await setDoc(doc(db, 'users', result.user.uid), {
+        name: result.user.displayName,
+        email: result.user.email,
+        photoURL: result.user.photoURL,
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', result.user.email);
+      window.dispatchEvent(new Event('storage'));
+      navigate('/dashboard'); // Redirect to dashboard after Google login
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        submit: error.message
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-purple-100 to-purple-200 pt-16">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-purple-300 transform transition-all duration-500">
-          <div className="space-y-6">
-            <h2 className="text-3xl text-center text-purple-700 font-bold mb-8">
-              Join the Waitlist
-            </h2>
-            
-            {!registrationComplete && (
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-                <div 
-                  className="bg-purple-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            )}
-
-            {!registrationComplete && (
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  {questions[step].icon}
-                  <div className="flex-1">
-                    <p className="text-lg text-gray-800 mb-4">{questions[step].text}</p>
-                    <input
-                      type={questions[step].field.includes('password') ? 'password' : 'text'}
-                      value={userData[questions[step].field]}
-                      onChange={handleInputChange}
-                      onKeyPress={handleKeyPress}
-                      className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 text-gray-800"
-                      placeholder={`Enter your ${questions[step].field}`}
-                      autoFocus
-                    />
-                    {currentError && (
-                      <p className="text-red-500 text-sm mt-2">{currentError}</p>
-                    )}
-                  </div>
-                </div>
-                
-                <button
-                  onClick={handleNext}
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transform transition hover:scale-105 flex items-center justify-center space-x-2"
-                >
-                  <span>Continue</span>
-                  <FaArrowRight size={16} />
-                </button>
-              </div>
-            )}
-
-            {showSuccessMessage && <SuccessMessage />}
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-purple-100 to-purple-200 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-purple-300">
+        {/* Tab Switcher */}
+        <div className="flex mb-8 bg-purple-100 rounded-lg p-1">
+          <button
+            onClick={() => setIsLogin(true)}
+            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${
+              isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'
+            }`}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => setIsLogin(false)}
+            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${
+              !isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'
+            }`}
+          >
+            Sign Up
+          </button>
         </div>
+
+        <form onSubmit={handleAuth} className="space-y-4">
+          {!isLogin && (
+            <>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <FaUser className="text-purple-500" />
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    style={{ color: 'black' }}
+                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  />
+                </div>
+                {errors.name && <p className="text-red-500 text-sm ml-8">{errors.name}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <FaPhone className="text-purple-500" />
+                  <input
+                    type="tel"
+                    name="mobile"
+                    placeholder="Mobile Number"
+                    value={formData.mobile}
+                    onChange={handleInputChange}
+                    style={{ color: 'black' }}
+                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  />
+                </div>
+                {errors.mobile && <p className="text-red-500 text-sm ml-8">{errors.mobile}</p>}
+              </div>
+            </>
+          )}
+
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <FaEnvelope className="text-purple-500" />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={handleInputChange}
+                style={{ color: 'black' }}
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+            </div>
+            {errors.email && <p className="text-red-500 text-sm ml-8">{errors.email}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <FaLock className="text-purple-500" />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleInputChange}
+                style={{ color: 'black' }}
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+            </div>
+            {errors.password && <p className="text-red-500 text-sm ml-8">{errors.password}</p>}
+          </div>
+
+          {errors.submit && (
+            <p className="text-red-500 text-sm text-center">{errors.submit}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
+          </button>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleAuth}
+            disabled={loading}
+            className="w-full flex items-center justify-center space-x-2 bg-white border border-gray-300 text-gray-700 font-semibold py-3 rounded-lg shadow-sm hover:shadow-md transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FaGoogle className="text-red-500" />
+            <span>Continue with Google</span>
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 
-export default ConversationalAuth;
+export default AuthComponent;

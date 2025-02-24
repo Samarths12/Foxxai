@@ -1,32 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
+import { getAuth, signOut } from 'firebase/auth';
 import logo from "./logo.jpg";
-import "./tailwindstyles.css"; // Importing Tailwind CSS styles
+import "./tailwindstyles.css";
 
-const Header = () => {
+const Header = ({ isAuthenticated }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
   const navigate = useNavigate();
+  const auth = getAuth();
 
   useEffect(() => {
-    const checkAuth = () => {
-      const authStatus = localStorage.getItem("isAuthenticated");
-      const userEmail = localStorage.getItem("userEmail");
-      setIsAuthenticated(authStatus === "true" && userEmail);
-    };
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUserEmail(user?.email);
+    });
 
-    checkAuth();
-    window.addEventListener("storage", checkAuth);
-    // Add custom event listener for auth changes
-    window.addEventListener("authChange", checkAuth);
-
-    return () => {
-      window.removeEventListener("storage", checkAuth);
-      window.removeEventListener("authChange", checkAuth);
-    };
-  }, []);
+    return () => unsubscribe();
+  }, [auth]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,32 +28,33 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleScrollToSection = (id) => {
-    const element = document.querySelector(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-    setIsOpen(false);
-  };
-
   const handleDashClick = () => {
     navigate("/dashboard");
   };
 
-  const handleSignOut = () => {
-    localStorage.setItem("isAuthenticated", "false");
-    localStorage.removeItem("userEmail");
-    setIsAuthenticated(false);
-    window.dispatchEvent(new Event("authChange"));
-    navigate("/signin");
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("userEmail");
+      navigate("/signin");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   const handleLogoClick = () => {
     navigate("/");
   };
 
-  const handleBookDemo = () => {
-    navigate("/signin"); // Redirecting to Sign In page
+  const handleAuthAction = () => {
+    navigate("/signin");
+  };
+
+  // Navigate to Features page instead of scrolling
+  const handleFeatures = () => {
+    navigate("/features");
+    setIsOpen(false); // Close mobile menu after clicking
   };
 
   return (
@@ -69,7 +62,7 @@ const Header = () => {
       <div className="header-wrapper">
         <div className="header-content">
           <div className="logo-group" onClick={handleLogoClick}>
-            <img src={logo} alt="Logo" className="logo" />
+            <img src={logo} alt="Logo" className="logo w-10 h-10 rounded-lg" />
             <div className="logo-text">ConvolabsAI</div>
           </div>
 
@@ -77,10 +70,10 @@ const Header = () => {
           <nav className="nav-menu">
             <ul className="nav-list">
               {[
-                { href: "#aiagents", label: "AIAgents" },
-                { href: "#pricing", label: "Pricing" },
-                { href: "#docs", label: "Docs" },
-                { href: "#features", label: "Blogs" },
+                { href: "/aiagents", label: "AIAgents" },
+                { href: "/pricing", label: "Pricing" },
+                { href: "/docs", label: "Docs" },
+                { label: "Blogs", onClick: handleFeatures }, // Updated to use navigation
                 { href: "/careers", label: "Careers", isExternal: true },
               ].map((item) => (
                 <li key={item.label}>
@@ -88,17 +81,17 @@ const Header = () => {
                     <Link to={item.href} className="nav-link">
                       {item.label}
                     </Link>
-                  ) : (
-                    <a
-                      href={item.href}
+                  ) : item.onClick ? (
+                    <button
+                      onClick={item.onClick}
                       className="nav-link"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleScrollToSection(item.href);
-                      }}
                     >
                       {item.label}
-                    </a>
+                    </button>
+                  ) : (
+                    <Link to={item.href} className="nav-link">
+                      {item.label}
+                    </Link>
                   )}
                 </li>
               ))}
@@ -107,19 +100,24 @@ const Header = () => {
 
           {/* Desktop Buttons */}
           <div className="button-group">
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <>
-                <button onClick={handleDashClick} className="btn-primary">
+                <button 
+                  onClick={handleDashClick} 
+                  className="btn-primary"
+                  title={userEmail}
+                >
                   Dash
                 </button>
                 <button onClick={handleSignOut} className="btn-danger">
                   Sign Out
                 </button>
               </>
+            ) : (
+              <button onClick={handleAuthAction} className="btn-primary">
+                Sign In
+              </button>
             )}
-            <button onClick={handleBookDemo} className="btn-primary">
-              Join the Waitlist
-            </button>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -133,10 +131,10 @@ const Header = () => {
           <nav>
             <ul className="mobile-nav-list">
               {[
-                { href: "#llm", label: "LLM" },
-                { href: "#data", label: "Data" },
-                { href: "#resources", label: "Resources" },
-                { href: "#features", label: "Blogs" },
+                { href: "/aiagents", label: "AIAgents" },
+                { href: "/pricing", label: "Pricing" },
+                { href: "/docs", label: "Docs" },
+                { label: "Blogs", onClick: handleFeatures }, // Updated to use navigation
                 { href: "/careers", label: "Careers", isExternal: true },
               ].map((item) => (
                 <li key={item.label}>
@@ -144,22 +142,22 @@ const Header = () => {
                     <Link to={item.href} className="nav-link">
                       {item.label}
                     </Link>
-                  ) : (
-                    <a
-                      href={item.href}
+                  ) : item.onClick ? (
+                    <button
+                      onClick={item.onClick}
                       className="nav-link"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleScrollToSection(item.href);
-                      }}
                     >
                       {item.label}
-                    </a>
+                    </button>
+                  ) : (
+                    <Link to={item.href} className="nav-link">
+                      {item.label}
+                    </Link>
                   )}
                 </li>
               ))}
               <li className="mobile-button-group">
-                {isAuthenticated && (
+                {isAuthenticated ? (
                   <>
                     <button onClick={handleDashClick} className="btn-primary">
                       Dash
@@ -168,10 +166,11 @@ const Header = () => {
                       Sign Out
                     </button>
                   </>
+                ) : (
+                  <button onClick={handleAuthAction} className="btn-primary">
+                    Join the Waitlist
+                  </button>
                 )}
-                <button onClick={handleBookDemo} className="btn-primary">
-                  Book a Demo
-                </button>
               </li>
             </ul>
           </nav>
