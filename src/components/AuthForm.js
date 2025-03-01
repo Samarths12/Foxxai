@@ -8,9 +8,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  onAuthStateChanged
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -29,6 +31,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Set persistence to LOCAL
+setPersistence(auth, browserLocalPersistence);
+
 const AuthComponent = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -41,50 +46,33 @@ const AuthComponent = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Check if the user is already logged in
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        navigate('/dashboard'); // Redirect to dashboard if user is logged in
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userEmail', user.email);
+        navigate('/dashboard', { replace: true }); // Immediate redirect
       }
     });
-
     return () => unsubscribe();
   }, [navigate]);
 
   const validateForm = () => {
     const newErrors = {};
     if (!isLogin) {
-      if (!formData.name || formData.name.length < 2) {
-        newErrors.name = 'Name must be at least 2 characters long';
-      }
-      if (!formData.mobile || !/^\d{10}$/.test(formData.mobile)) {
-        newErrors.mobile = 'Please enter a valid 10-digit mobile number';
-      }
+      if (!formData.name || formData.name.length < 2) newErrors.name = 'Name must be at least 2 characters long';
+      if (!formData.mobile || !/^\d{10}$/.test(formData.mobile)) newErrors.mobile = 'Please enter a valid 10-digit mobile number';
     }
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    if (!formData.password || formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long';
-    }
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email';
+    if (!formData.password || formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters long';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleAuth = async (e) => {
@@ -94,31 +82,42 @@ const AuthComponent = () => {
     setLoading(true);
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      } else {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          formData.email,
-          formData.password
-        );
+        const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        const user = userCredential.user;
+        // Fetch Firestore data for returning user
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.exists() ? userDoc.data() : {};
+        const userName = userData.name || user.displayName || 'Guest';
         
-        // Store additional user data in Firestore
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userEmail', formData.email);
+        window.dispatchEvent(new Event('storage'));
+        navigate('/dashboard', { 
+          replace: true, 
+          state: { userName } // Pass userName to Dashboard
+        });
+      } else {
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
         await setDoc(doc(db, 'users', userCredential.user.uid), {
           name: formData.name,
           email: formData.email,
           mobile: formData.mobile,
           createdAt: new Date().toISOString()
         });
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userEmail', formData.email);
+        window.dispatchEvent(new Event('storage'));
+        navigate('/dashboard', { 
+          replace: true, 
+          state: { userName: formData.name } // Pass new user's name
+        });
       }
-
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', formData.email);
-      window.dispatchEvent(new Event('storage'));
-      navigate('/dashboard'); // Redirect to dashboard after successful login/signup
     } catch (error) {
       setErrors(prev => ({
         ...prev,
-        submit: error.message
+        submit: error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found'
+          ? 'Invalid email or password'
+          : error.message
       }));
     } finally {
       setLoading(false);
@@ -129,24 +128,21 @@ const AuthComponent = () => {
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      
-      // Store user data in Firestore
       await setDoc(doc(db, 'users', result.user.uid), {
         name: result.user.displayName,
         email: result.user.email,
         photoURL: result.user.photoURL,
         createdAt: new Date().toISOString()
       }, { merge: true });
-
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', result.user.email);
       window.dispatchEvent(new Event('storage'));
-      navigate('/dashboard'); // Redirect to dashboard after Google login
+      navigate('/dashboard', { 
+        replace: true, 
+        state: { userName: result.user.displayName } // Pass Google user's name
+      });
     } catch (error) {
-      setErrors(prev => ({
-        ...prev,
-        submit: error.message
-      }));
+      setErrors(prev => ({ ...prev, submit: error.message }));
     } finally {
       setLoading(false);
     }
@@ -155,21 +151,16 @@ const AuthComponent = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-purple-100 to-purple-200 px-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-purple-300">
-        {/* Tab Switcher */}
         <div className="flex mb-8 bg-purple-100 rounded-lg p-1">
           <button
             onClick={() => setIsLogin(true)}
-            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${
-              isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'
-            }`}
+            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'}`}
           >
             Login
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${
-              !isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'
-            }`}
+            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${!isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'}`}
           >
             Sign Up
           </button>
@@ -193,7 +184,6 @@ const AuthComponent = () => {
                 </div>
                 {errors.name && <p className="text-red-500 text-sm ml-8">{errors.name}</p>}
               </div>
-
               <div className="space-y-2">
                 <div className="flex items-center space-x-3">
                   <FaPhone className="text-purple-500" />
@@ -211,7 +201,6 @@ const AuthComponent = () => {
               </div>
             </>
           )}
-
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
               <FaEnvelope className="text-purple-500" />
@@ -227,7 +216,6 @@ const AuthComponent = () => {
             </div>
             {errors.email && <p className="text-red-500 text-sm ml-8">{errors.email}</p>}
           </div>
-
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
               <FaLock className="text-purple-500" />
@@ -243,11 +231,7 @@ const AuthComponent = () => {
             </div>
             {errors.password && <p className="text-red-500 text-sm ml-8">{errors.password}</p>}
           </div>
-
-          {errors.submit && (
-            <p className="text-red-500 text-sm text-center">{errors.submit}</p>
-          )}
-
+          {errors.submit && <p className="text-red-500 text-sm text-center">{errors.submit}</p>}
           <button
             type="submit"
             disabled={loading}
@@ -255,7 +239,6 @@ const AuthComponent = () => {
           >
             {loading ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
           </button>
-
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -264,7 +247,6 @@ const AuthComponent = () => {
               <span className="px-2 bg-white text-gray-500">Or continue with</span>
             </div>
           </div>
-
           <button
             type="button"
             onClick={handleGoogleAuth}

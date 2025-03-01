@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AiOutlineHome, AiOutlineSearch, AiOutlineBook, AiOutlineMenu } from 'react-icons/ai';
 import { FaTags, FaUser, FaBook, FaSignOutAlt, FaSearch, FaMicrophone, FaTimes, FaEdit, FaSave, FaCreditCard, FaPhone, FaCalendar } from 'react-icons/fa';
 import { Card, CardHeader, CardTitle, CardContent } from './Card';
@@ -34,57 +34,40 @@ const AudioWave = ({ analyser, isRecording }) => {
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Calculate average amplitude with a higher threshold
       const averageAmplitude = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
-      const normalizedAmplitude = Math.min(Math.max((averageAmplitude - 50) / 100, 0), 1); // Threshold at 50, max 1
+      const normalizedAmplitude = Math.min(Math.max((averageAmplitude - 50) / 100, 0), 1);
 
-      // Create gradient
       const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, baseRadius * 2);
       gradient.addColorStop(0, 'rgba(79, 70, 229, 0.8)');
       gradient.addColorStop(0.5, 'rgba(147, 51, 234, 0.6)');
       gradient.addColorStop(1, 'rgba(236, 72, 153, 0.2)');
 
-      // Outer wave
       ctx.beginPath();
       for (let i = 0; i <= 360; i++) {
         const angle = (i * Math.PI) / 180;
-        // Use normalized amplitude to control radius, ensuring full circle effect
         const amplitudeFactor = normalizedAmplitude * 40;
-        const r = baseRadius + amplitudeFactor * Math.sin(angle * 8); // 8 waves around circle
-
+        const r = baseRadius + amplitudeFactor * Math.sin(angle * 8);
         const x = centerX + Math.cos(angle) * r;
         const y = centerY + Math.sin(angle) * r;
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
       ctx.closePath();
-      
       ctx.strokeStyle = gradient;
       ctx.lineWidth = 3;
       ctx.stroke();
 
-      // Inner ripple effect
       ctx.beginPath();
       for (let i = 0; i <= 360; i++) {
         const angle = (i * Math.PI) / 180;
         const amplitudeFactor = normalizedAmplitude * 20;
         const r = baseRadius * 0.7 + amplitudeFactor * Math.sin(angle * 8);
-
         const x = centerX + Math.cos(angle) * r;
         const y = centerY + Math.sin(angle) * r;
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
       ctx.closePath();
-      
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -92,43 +75,32 @@ const AudioWave = ({ analyser, isRecording }) => {
       animationFrameRef.current = requestAnimationFrame(draw);
     };
 
-    if (isRecording) {
-      draw();
-    }
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
+    if (isRecording) draw();
+    return () => animationFrameRef.current && cancelAnimationFrame(animationFrameRef.current);
   }, [analyser, isRecording]);
 
   return (
     <div className="flex justify-center py-2 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-b-2xl">
-      <canvas 
-        ref={canvasRef} 
-        width={300} 
-        height={150}
-        className="max-w-full"
-      />
+      <canvas ref={canvasRef} width={300} height={150} className="max-w-full" />
     </div>
   );
 };
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Access navigation state
   const auth = getAuth();
   const db = getFirestore();
 
-  // State management
   const [activeTab, setActiveTab] = useState('home');
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState(location.state?.userName || ''); // Use passed name initially
   const [searchFocus, setSearchFocus] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(false);
   const [error, setError] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -137,49 +109,69 @@ const Dashboard = () => {
   const [analyser, setAnalyser] = useState(null);
   const [mediaStream, setMediaStream] = useState(null);
   const audioVisualizerRef = useRef(null);
+  
+  const [dashboardStats, setDashboardStats] = useState({
+    activeProjects: 12,
+    completedTasks: 48,
+    teamAgents: 8
+  });
 
-  // Authentication check and user data fetch
+  // Initial auth check
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      try {
-        if (user) {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          const data = userDoc.exists() ? userDoc.data() : {};
-          setUserName(data.name || user.displayName || 'Guest');
-          setUserData({
-            name: data.name || user.displayName || 'Guest',
-            email: user.email,
-            phone: data.phone || '',
-            photoURL: user.photoURL || 'https://www.instantaiprompt.com/wp-content/uploads/2023/12/simple-cartoon-from-photo.jpg',
-            uid: user.uid,
-            lastLogin: user.metadata.lastSignInTime,
-            subscription: {
-              plan: data.subscription?.plan || 'Pro',
-              status: data.subscription?.status || 'active',
-              nextBilling: data.subscription?.nextBilling || 'Mar 22, 2025'
-            },
-            billing: {
-              cardType: data.billing?.cardType || 'Visa',
-              lastFour: data.billing?.lastFour || '1234',
-              expiry: data.billing?.expiry || '12/25'
-            }
-          });
-          localStorage.setItem('isAuthenticated', 'true');
-        } else {
-          localStorage.removeItem('isAuthenticated');
-          navigate('/signin');
-        }
-      } catch (err) {
-        console.error('Auth error:', err);
-        setError('Authentication failed');
-      } finally {
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Use name from navigation state if available, else auth or 'Guest'
+        setUserName(location.state?.userName || user.displayName || 'Guest');
+        localStorage.setItem('isAuthenticated', 'true');
         setAuthChecked(true);
+        setLoading(false);
+        fetchUserData(user.uid);
+      } else {
+        localStorage.removeItem('isAuthenticated');
+        navigate('/signin', { replace: true });
+        setLoading(false);
       }
     });
-
     return () => unsubscribe();
-  }, [auth, db, navigate]);
+  }, [auth, navigate, location.state]);
+
+  // Fetch Firestore data in background
+  const fetchUserData = async (uid) => {
+    setDataLoading(true);
+    try {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      const data = userDoc.exists() ? userDoc.data() : {};
+      const userInfo = {
+        name: data.name || auth.currentUser.displayName || 'Guest',
+        email: auth.currentUser.email,
+        phone: data.phone || '',
+        photoURL: auth.currentUser.photoURL || 'https://www.instantaiprompt.com/wp-content/uploads/2023/12/simple-cartoon-from-photo.jpg',
+        uid: auth.currentUser.uid,
+        lastLogin: auth.currentUser.metadata.lastSignInTime,
+        subscription: {
+          plan: data.subscription?.plan || 'Pro',
+          status: data.subscription?.status || 'active',
+          nextBilling: data.subscription?.nextBilling || 'Mar 22, 2025'
+        },
+        billing: {
+          cardType: data.billing?.cardType || 'Visa',
+          lastFour: data.billing?.lastFour || '1234',
+          expiry: data.billing?.expiry || '12/25'
+        }
+      };
+      setUserData(userInfo);
+      setUserName(userInfo.name); // Update with Firestore name
+      setDashboardStats({
+        activeProjects: data.activeProjects || dashboardStats.activeProjects,
+        completedTasks: data.completedTasks || dashboardStats.completedTasks,
+        teamAgents: data.teamAgents || dashboardStats.teamAgents
+      });
+    } catch (err) {
+      console.error('Firestore fetch error:', err);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   // Handle window resize
   useEffect(() => {
@@ -188,13 +180,11 @@ const Dashboard = () => {
       setIsMobile(mobile);
       setSidebarOpen(!mobile);
     };
-
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Loading and error states
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50">
@@ -221,14 +211,13 @@ const Dashboard = () => {
   }
 
   if (!authChecked) return null;
-  if (!localStorage.getItem('isAuthenticated')) return <Navigate to="/signin" />;
+  if (!localStorage.getItem('isAuthenticated')) return <Navigate to="/signin" replace />;
 
-  // Component functions
   const handleSignOut = async () => {
     try {
       await auth.signOut();
       localStorage.removeItem('isAuthenticated');
-      navigate('/signin');
+      navigate('/signin', { replace: true });
     } catch (err) {
       console.error('Sign out error:', err);
       setError('Failed to sign out');
@@ -272,15 +261,9 @@ const Dashboard = () => {
   };
 
   const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === "recording") {
-      mediaRecorder.stop();
-    }
-    if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
-    }
-    if (audioContext) {
-      audioContext.close();
-    }
+    if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+    if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+    if (audioContext) audioContext.close();
     setAudioContext(null);
     setAnalyser(null);
     setMediaStream(null);
@@ -288,7 +271,6 @@ const Dashboard = () => {
     setIsRecording(false);
   };
 
-  // Profile Modal Component
   const ProfileModal = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedData, setEditedData] = useState({ ...userData });
@@ -341,7 +323,6 @@ const Dashboard = () => {
               <FaTimes size={20} />
             </button>
           </div>
-
           <div className="p-6 max-h-[70vh] overflow-y-auto">
             {errorMessage && (
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
@@ -351,7 +332,7 @@ const Dashboard = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-4 pb-4 border-b border-gray-100">
                 <img
-                  src={userData.photoURL}
+                  src={userData?.photoURL || 'https://www.instantaiprompt.com/wp-content/uploads/2023/12/simple-cartoon-from-photo.jpg'}
                   alt="User avatar"
                   className="w-20 h-20 rounded-full object-cover ring-2 ring-indigo-200"
                 />
@@ -365,12 +346,11 @@ const Dashboard = () => {
                       className="w-full text-lg font-semibold text-gray-800 border-b border-gray-300 focus:border-indigo-500 outline-none"
                     />
                   ) : (
-                    <h3 className="text-lg font-semibold text-gray-800">{userData.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">{userData?.name || 'Guest'}</h3>
                   )}
-                  <p className="text-sm text-gray-600">{userData.email}</p>
+                  <p className="text-sm text-gray-600">{userData?.email || ''}</p>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <h4 className="text-md font-semibold text-gray-700">Personal Details</h4>
                 <div className="grid grid-cols-1 gap-4">
@@ -389,9 +369,7 @@ const Dashboard = () => {
                         placeholder="+1 (555) 123-4567"
                       />
                     ) : (
-                      <span className="text-gray-800 font-medium">
-                        {userData.phone || 'Not provided'}
-                      </span>
+                      <span className="text-gray-800 font-medium">{userData?.phone || 'Not provided'}</span>
                     )}
                   </div>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
@@ -400,54 +378,47 @@ const Dashboard = () => {
                       <span className="text-gray-600">Last Login</span>
                     </div>
                     <span className="text-gray-800 font-medium">
-                      {new Date(userData.lastLogin).toLocaleString()}
+                      {userData?.lastLogin ? new Date(userData.lastLogin).toLocaleString() : 'N/A'}
                     </span>
                   </div>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <h4 className="text-md font-semibold text-gray-700">Subscription</h4>
                 <div className="p-4 bg-indigo-50 rounded-xl">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-indigo-700 font-medium">Current Plan</span>
-                    <span className="text-indigo-800 font-semibold">{userData.subscription.plan}</span>
+                    <span className="text-indigo-800 font-semibold">{userData?.subscription.plan || 'Pro'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-indigo-700 font-medium">Status</span>
-                    <span className={`px-2 py-1 rounded-full text-xs ${userData.subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {userData.subscription.status}
+                    <span className={`px-2 py-1 rounded-full text-xs ${userData?.subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {userData?.subscription.status || 'active'}
                     </span>
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-indigo-700 font-medium">Next Billing</span>
-                    <span className="text-indigo-800 font-semibold">{userData.subscription.nextBilling}</span>
+                    <span className="text-indigo-800 font-semibold">{userData?.subscription.nextBilling || 'Mar 22, 2025'}</span>
                   </div>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <h4 className="text-md font-semibold text-gray-700">Billing Information</h4>
                 <div className="p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center space-x-2 mb-2">
                     <FaCreditCard className="text-gray-500" />
-                    <span className="text-gray-600 font-medium">{userData.billing.cardType} ending in {userData.billing.lastFour}</span>
+                    <span className="text-gray-600 font-medium">{userData?.billing.cardType || 'Visa'} ending in {userData?.billing.lastFour || '1234'}</span>
                   </div>
-                  <div className="text-sm text-gray-600">Expires: {userData.billing.expiry}</div>
+                  <div className="text-sm text-gray-600">Expires: {userData?.billing.expiry || '12/25'}</div>
                 </div>
               </div>
             </div>
           </div>
-
           <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between">
             {isEditing ? (
               <>
                 <button
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditedData({ ...userData });
-                    setErrorMessage('');
-                  }}
+                  onClick={() => { setIsEditing(false); setEditedData({ ...userData }); setErrorMessage(''); }}
                   className="py-2 px-4 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                   disabled={saving}
                 >
@@ -554,17 +525,10 @@ const Dashboard = () => {
           />
           <button
             onClick={() => {
-              if (isRecording) {
-                stopRecording();
-              } else {
-                startRecording();
-              }
+              if (isRecording) stopRecording();
+              else startRecording();
             }}
-            className={`ml-4 p-2 rounded-full transition-colors duration-200 ${
-              isRecording 
-                ? 'bg-red-50 text-red-500 hover:bg-red-100' 
-                : 'text-gray-500 hover:bg-gray-100'
-            }`}
+            className={`ml-4 p-2 rounded-full transition-colors duration-200 ${isRecording ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'text-gray-500 hover:bg-gray-100'}`}
           >
             <FaMicrophone className={`text-xl ${isRecording ? 'animate-pulse' : ''}`} />
           </button>
@@ -578,13 +542,10 @@ const Dashboard = () => {
     home: (
       <div className="min-h-screen bg-gray-50">
         <div className="relative h-[60vh] flex flex-col items-center justify-center">
-          <div className={`max-w-3xl w-full transition-all duration-300 ${
-            searchFocus ? "scale-105" : ""
-          }`}>
+          <div className={`max-w-3xl w-full transition-all duration-300 ${searchFocus ? "scale-105" : ""}`}>
             <SearchBar />
           </div>
         </div>
-
         <div className="relative bg-gray-50 -mt-30">
           <div className="container mx-auto px-4 space-y-6 pb-12">
             <Card className="bg-white shadow-lg border border-gray-100">
@@ -595,21 +556,20 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-indigo-50 p-6 rounded-xl shadow-sm border border-indigo-100 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-indigo-900 mb-2">Active Projects</h3>
-                    <p className="text-4xl font-bold text-indigo-600">12</p>
+                    <p className="text-4xl font-bold text-indigo-600">{dashboardStats.activeProjects}</p>
                   </div>
                   <div className="bg-emerald-50 p-6 rounded-xl shadow-sm border border-emerald-100 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-emerald-900 mb-2">Completed Tasks</h3>
-                    <p className="text-4xl font-bold text-emerald-600">48</p>
+                    <p className="text-4xl font-bold text-emerald-600">{dashboardStats.completedTasks}</p>
                   </div>
                   <div className="bg-violet-50 p-6 rounded-xl shadow-sm border border-violet-100 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-violet-900 mb-2">Team Agents</h3>
-                    <p className="text-4xl font-bold text-violet-600">8</p>
+                    <p className="text-4xl font-bold text-violet-600">{dashboardStats.teamAgents}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-
           <div className="container mx-auto px-4 space-y-6 pt-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-white shadow-lg border border-gray-100">
@@ -619,10 +579,7 @@ const Dashboard = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="flex items-center space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                      >
+                      <div key={i} className="flex items-center space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                         <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
                         <div>
                           <p className="font-medium text-gray-800">Project Update #{i}</p>
@@ -633,7 +590,6 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
-
               <Card className="bg-white shadow-lg border border-gray-100">
                 <CardHeader className="border-b border-gray-100">
                   <CardTitle className="text-xl text-gray-800">Quick Actions</CardTitle>
@@ -739,7 +695,6 @@ const Dashboard = () => {
             <div className="prose max-w-none">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Getting Started</h2>
               <p className="text-gray-600 mb-6">Welcome to our comprehensive documentation. Here you'll find everything you need to know about using our platform effectively.</p>
-              
               <h3 className="text-xl font-semibold text-gray-800 mb-4">Quick Links</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 bg-indigo-50 rounded-xl border border-indigo-100 hover:shadow-md transition-all cursor-pointer group">
@@ -830,18 +785,15 @@ const Dashboard = () => {
           <div className="w-8" />
         </div>
       )}
-      
       {isMobile && isSidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={toggleSidebar} />
       )}
-
       <div className="flex h-screen">
         <Sidebar />
         <div className={`flex-1 overflow-auto ${isMobile ? 'pt-16' : 'p-8'}`}>
           <div className="p-4 md:p-8">{contentComponents[activeTab]}</div>
         </div>
       </div>
-
       {isProfileOpen && userData && <ProfileModal />}
     </div>
   );

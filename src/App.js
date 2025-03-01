@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { 
-  BrowserRouter as Router, 
-  Routes, 
-  Route, 
-  useLocation, 
-  Navigate 
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  Navigate
 } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Header from "./components/Header";
@@ -21,6 +21,7 @@ import BlogPage from "./components/BlogPage";
 import AIAgentsPage from "./components/AIAgentsPage";
 import DocsPage from "./components/DocsPage";
 import PricingPage from "./components/PricingPage";
+import EnquiryPage from "./components/EnquiryPage"; // Import the new EnquiryPage component
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -55,6 +56,7 @@ const ProtectedRoute = ({ children }) => {
 const AppLayout = () => {
   const location = useLocation();
   const isDashboardRoute = location.pathname === '/dashboard';
+  const isEnquiryRoute = location.pathname === '/enquiry'; // Check if current route is enquiry page
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -66,7 +68,8 @@ const AppLayout = () => {
     return () => unsubscribe();
   }, []);
 
-  const shouldShowHeader = !isDashboardRoute;
+  // Show header on all routes except dashboard and enquiry page
+  const shouldShowHeader = !isDashboardRoute && !isEnquiryRoute;
 
   return (
     <div className="bg-black">
@@ -97,8 +100,8 @@ const AppLayout = () => {
           path="/signin"
           element={
             isAuthenticated ? 
-            <Navigate to="/dashboard" replace /> : 
-            <AuthForm />
+              <Navigate to="/dashboard" replace /> :
+              <AuthForm />
           }
         />
         <Route
@@ -129,6 +132,11 @@ const AppLayout = () => {
           path="/pricing"
           element={<PricingPage />}
         />
+        {/* Add new Enquiry Page route */}
+        <Route
+          path="/enquiry"
+          element={<EnquiryPage />}
+        />
         {/* Catch-all route for unknown paths */}
         <Route
           path="*"
@@ -148,4 +156,3 @@ const App = () => {
 };
 
 export default App;
-

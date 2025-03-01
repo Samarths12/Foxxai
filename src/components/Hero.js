@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaProjectDiagram, FaRegComment, FaUsers, FaSearch } from "react-icons/fa";
+import { FaProjectDiagram, FaRegComment, FaUsers, FaSearch, FaInfoCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function Hero() {
@@ -100,13 +100,19 @@ function Hero() {
             </div>
           </div>
 
-          {/* Book a Demo Button - Updated with reduced size */}
-          <div className="mb-8 md:mb-12">
+          {/* Buttons - Updated with additional Enquire Now button */}
+          <div className="mb-8 md:mb-12 flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate("/signin")}
               className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
             >
               Join the Waitlist
+            </button>
+            <button
+              onClick={() => navigate("/enquiry")}
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-base font-semibold rounded-lg shadow-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+            >
+              Enquire Now
             </button>
           </div>
 
