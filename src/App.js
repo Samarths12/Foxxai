@@ -21,7 +21,8 @@ import BlogPage from "./components/BlogPage";
 import AIAgentsPage from "./components/AIAgentsPage";
 import DocsPage from "./components/DocsPage";
 import PricingPage from "./components/PricingPage";
-import EnquiryPage from "./components/EnquiryPage"; // Import the new EnquiryPage component
+import EnquiryPage from "./components/EnquiryPage";
+import FAQ from "./components/FAQ";
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -56,7 +57,8 @@ const ProtectedRoute = ({ children }) => {
 const AppLayout = () => {
   const location = useLocation();
   const isDashboardRoute = location.pathname === '/dashboard';
-  const isEnquiryRoute = location.pathname === '/enquiry'; // Check if current route is enquiry page
+  const isEnquiryRoute = location.pathname === '/enquiry';
+  const isSigninRoute = location.pathname === '/signin';
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -81,20 +83,14 @@ const AppLayout = () => {
             <>
               <Hero />
               <Info />
+              <FAQ />
               <Form />
-              <About />
-              <Footer />
             </>
           }
         />
         <Route
           path="/features"
-          element={
-            <>
-              <Features />
-              <Footer />
-            </>
-          }
+          element={<Features />}
         />
         <Route
           path="/signin"
@@ -132,17 +128,21 @@ const AppLayout = () => {
           path="/pricing"
           element={<PricingPage />}
         />
-        {/* Add new Enquiry Page route */}
         <Route
           path="/enquiry"
           element={<EnquiryPage />}
         />
-        {/* Catch-all route for unknown paths */}
         <Route
           path="*"
           element={<Navigate to="/" replace />}
         />
       </Routes>
+      {(!isSigninRoute && !isDashboardRoute) && (
+        <>
+          <About />
+          <Footer />
+        </>
+      )} {/* Show About and Footer only if not on signin or dashboard */}
     </div>
   );
 };

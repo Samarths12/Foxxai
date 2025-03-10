@@ -51,10 +51,9 @@ const Header = ({ isAuthenticated }) => {
     navigate("/signin");
   };
 
-  // Navigate to Features page instead of scrolling
   const handleFeatures = () => {
     navigate("/features");
-    setIsOpen(false); // Close mobile menu after clicking
+    setIsOpen(false);
   };
 
   return (
@@ -66,14 +65,14 @@ const Header = ({ isAuthenticated }) => {
             <div className="logo-text">ConvolabsAI</div>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="nav-menu">
-            <ul className="nav-list">
+          {/* Desktop Navigation - Centered */}
+          <nav className="nav-menu flex-grow flex justify-center">
+            <ul className="nav-list flex items-center">
               {[
                 { href: "/aiagents", label: "AIAgents" },
                 { href: "/pricing", label: "Pricing" },
                 { href: "/docs", label: "Docs" },
-                { label: "Blogs", onClick: handleFeatures }, // Updated to use navigation
+                { label: "Blogs", onClick: handleFeatures },
                 { href: "/careers", label: "Careers", isExternal: true },
               ].map((item) => (
                 <li key={item.label}>
@@ -82,10 +81,7 @@ const Header = ({ isAuthenticated }) => {
                       {item.label}
                     </Link>
                   ) : item.onClick ? (
-                    <button
-                      onClick={item.onClick}
-                      className="nav-link"
-                    >
+                    <button onClick={item.onClick} className="nav-link">
                       {item.label}
                     </button>
                   ) : (
@@ -98,8 +94,8 @@ const Header = ({ isAuthenticated }) => {
             </ul>
           </nav>
 
-          {/* Desktop Buttons */}
-          <div className="button-group">
+          {/* Desktop Buttons - Commented Out */}
+          {/* <div className="button-group">
             {isAuthenticated ? (
               <>
                 <button 
@@ -118,7 +114,7 @@ const Header = ({ isAuthenticated }) => {
                 Sign In
               </button>
             )}
-          </div>
+          </div> */}
 
           {/* Mobile Menu Toggle */}
           <button className="menu-toggle" onClick={() => setIsOpen(!isOpen)}>
@@ -134,7 +130,7 @@ const Header = ({ isAuthenticated }) => {
                 { href: "/aiagents", label: "AIAgents" },
                 { href: "/pricing", label: "Pricing" },
                 { href: "/docs", label: "Docs" },
-                { label: "Blogs", onClick: handleFeatures }, // Updated to use navigation
+                { label: "Blogs", onClick: handleFeatures },
                 { href: "/careers", label: "Careers", isExternal: true },
               ].map((item) => (
                 <li key={item.label}>
@@ -143,10 +139,7 @@ const Header = ({ isAuthenticated }) => {
                       {item.label}
                     </Link>
                   ) : item.onClick ? (
-                    <button
-                      onClick={item.onClick}
-                      className="nav-link"
-                    >
+                    <button onClick={item.onClick} className="nav-link">
                       {item.label}
                     </button>
                   ) : (

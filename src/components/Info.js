@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import "./tailwindstyles.css"; // Import the CSS file
+import { FaSearch, FaLightbulb, FaChartBar, FaRocket } from "react-icons/fa"; // Import React Icons
 
 const Info = () => {
-  const section1Ref = useRef(null);
-  const section2Ref = useRef(null);
-  const section3Ref = useRef(null);
-  const cardRefs = useRef([]);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
     const observerOptions = {
@@ -18,11 +16,11 @@ const Info = () => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('animate-section');
-          const cards = entry.target.querySelectorAll('.animate-card');
-          cards.forEach((card, index) => {
+          const boxes = entry.target.querySelectorAll('.animate-box');
+          boxes.forEach((box, index) => {
             setTimeout(() => {
-              card.classList.add('card-visible');
-            }, index * 200); // Stagger the card animations
+              box.classList.add('box-visible');
+            }, index * 300); // Stagger the box animations
           });
           observer.unobserve(entry.target);
         }
@@ -31,120 +29,116 @@ const Info = () => {
 
     const observer = new IntersectionObserver(handleIntersect, observerOptions);
 
-    if (section1Ref.current) observer.observe(section1Ref.current);
-    if (section2Ref.current) observer.observe(section2Ref.current);
-    if (section3Ref.current) observer.observe(section3Ref.current);
+    if (sectionRef.current) observer.observe(sectionRef.current);
 
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-sky-50 to-blue-100 text-gray-800 overflow-hidden">
-      
-      <div ref={section1Ref} className="container mx-auto px-4 mb-20 opacity-0 not-animated">
-  <div className="text-center mb-10 animate-title">
-    <h2 className="text-5xl font-semibold text-gray-900 mb-4">
-      Client Data Journey
-    </h2>
-    <p className="text-lg text-gray-700">
-      Our comprehensive approach to understanding and fulfilling your data needs
-    </p>
-  </div>
-
-  <div className="flex flex-col items-center">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
-      {[
-        {
-          number: 1,
-          title: "Requirements Analysis",
-          items: ["Business needs assessment", "Data scope definition", "Resource planning"]
-        },
-        {
-          number: 2,
-          title: "Expert Consultation",
-          items: ["Industry specialist assignment", "Task definition", "Team selection"]
-        },
-        {
-          number: 3,
-          title: "Implementation Plan",
-          items: ["Timeline creation", "Resource allocation", "Quality metrics setup"]
-        }
-      ].map((card, index) => (
-        <div key={index} className="animate-card opacity-0 scale-95">
-          <div className="bg-gradient-to-br from-white to-blue-50 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-            <div className="h-16 w-16 bg-gray-700 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 mx-auto animate-bounce-slow">
-              {card.number}
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">
-              {card.title}
-            </h3>
-            <ul className="space-y-2 text-gray-700">
-              {card.items.map((item, i) => (
-                <li key={i} className="flex items-center slide-in-right" style={{animationDelay: `${i * 0.2}s`}}>
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-                  {item}
-                </li>
-              ))}
-            </ul>
+    <section className="py-20 bg-gradient-to-b from-blue-50 to-indigo-50 text-gray-800 overflow-hidden">
+      {/* Client Data Journey Header */}
+      <div className="container mx-auto px-4 mb-16">
+        <div className="text-center">
+          <div className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2 px-6 py-1 rounded-full text-sm font-semibold">
+            Our Process
           </div>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
-
-<div ref={section2Ref} className="container mx-auto px-4 mb-20 opacity-0 not-animated">
-  <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl p-8 max-w-6xl mx-auto transform hover:scale-[1.02] transition-transform duration-500">
-    <h2 className="text-4xl font-semibold text-gray-900 mb-8 text-center">
-      Interactive Data Annotation Workflow
-    </h2>
-    
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-        {[
-          { title: "Project Setup", desc: "Custom project creation using our no-code solution" },
-          { title: "Data Processing", desc: "Automated data preprocessing and organization" },
-          { title: "Quality Assurance", desc: "Multi-level validation and verification process" }
-        ].map((step, index) => (
-          <React.Fragment key={index}>
-            <div className="w-full md:w-1/3 bg-white p-6 rounded-lg animate-card opacity-0 scale-95 hover:bg-blue-100 transition-colors duration-300">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">{step.title}</h3>
-              <p className="text-gray-700">{step.desc}</p>
-            </div>
-            {index < 2 && (
-              <div className="hidden md:block text-blue-500 text-4xl animate-bounce-horizontal">→</div>
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-    </div>
-  </div>
-</div>
-
-      <div ref={section3Ref} className="container mx-auto px-4 mb-20 opacity-0 not-animated">
-        <div className="bg-gradient-to-r from-blue-100 via-purple-200 to-purple-300 rounded-3xl shadow-xl p-10 max-w-6xl mx-auto text-gray-900 transform hover:scale-105 transition-transform duration-500">
-          <h2 className="text-4xl font-semibold mb-10 text-center text-gray-700 drop-shadow-sm">
-            AI-Assisted Quality Check System
+          <h2 className="text-5xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
+            Client Data Journey
           </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Our comprehensive approach to understanding and fulfilling your data needs through innovation and expertise
+          </p>
+        </div>
+      </div>
+      
+      {/* 2×2 GRID OF SQUARE BOXES */}
+      <div ref={sectionRef} className="container mx-auto px-4 mb-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {[
-              { title: "Text Analysis", desc: "AI-powered insights for textual data" },
-              { title: "Email Processing", desc: "Automated email categorization" },
-              { title: "Smart Assistance", desc: "AI suggestions and auto-corrections" },
-              { title: "Call Handling", desc: "AI-driven call analysis and management" }
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="animate-card opacity-0 scale-95 transition-transform duration-500 hover:scale-100"
-              >
-                <div className="bg-white/50 backdrop-blur-sm p-6 rounded-2xl shadow-md hover:shadow-xl hover:bg-white/70 transition-all duration-300 transform hover:-translate-y-2">
-                  <h3 className="text-2xl font-semibold mb-4 text-gray-800 drop-shadow-sm">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 font-medium">
-                    {item.desc}
-                  </p>
+              {
+                title: "AI-Driven Customer Support",
+                points: [
+                  "Provide reliable, 24*7 assistance for routine tasks.",
+                  "Tackle complex inquiries with advanced capabilities.",
+                  "Maintain consistent, on-brand messaging."
+                ],
+                bgColor: "bg-purple-50", // Changed from bg-blue-50
+                accentColor: "from-indigo-400 to-blue-400", // Changed from from-blue-400 to-indigo-400
+                icon: <FaSearch size={28} />,
+                number: "01"
+              },
+              {
+                title: "Multi-Platform Data Synchronization",
+                points: [
+                  "Integrate effortlessly with WhatsApp, email, SMS, and voice calls.",
+                  " Sync conversations and data in real time across all channels."
+                ],
+                bgColor: "bg-violet-50", // Changed from bg-indigo-50
+                accentColor: "from-violet-400 to-indigo-400", // Changed from from-purple-400 to-indigo-400
+                icon: <FaLightbulb size={28} />,
+                number: "02"
+              },
+              {
+                title: "Adaptive Responses with a Robust Feedback Loop",
+                points: [
+                  "Continuously refine AI responses based on real-time feedback.",
+                  "Leverage advanced learning algorithms to optimize interactions."
+                ],
+                bgColor: "bg-purple-50",
+                accentColor: "from-indigo-400 to-blue-400",
+                icon: <FaChartBar size={28} />,
+                number: "03"
+              },
+              {
+                title: "Ultra-Low Latency",
+                points: [
+                  "Respond to customer queries at lightning speed.",
+                  "Ensure high performance even during peak demand periods.",
+                  "exact human-like voices."
+                ],
+                bgColor: "bg-violet-50",
+                accentColor: "from-violet-400 to-indigo-400",
+                icon: <FaRocket size={28} />,
+                number: "04"
+              }
+            ].map((box, index) => (
+              <div key={index} className="animate-box">
+                <div className={`aspect-square ${box.bgColor} rounded-2xl shadow-lg border border-gray-100 overflow-hidden group relative transition-all duration-300 hover:shadow-xl hover:translate-y-[-4px]`}>
+                  {/* Accent top border */}
+                  <div className={`h-1.5 w-full bg-gradient-to-r ${box.accentColor}`}></div>
+                  
+                  {/* Big number watermark */}
+                  <div className="absolute right-0 top-8 text-[140px] font-black text-gray-100 leading-none -mr-6 select-none">
+                    {box.number}
+                  </div>
+                  
+                  {/* Content container */}
+                  <div className="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    {/* Top section with icon */}
+                    <div>
+                      <div className={`bg-gradient-to-r ${box.accentColor} w-16 h-16 rounded-xl flex items-center justify-center text-white shadow-md mb-6`}>
+                        {box.icon}
+                      </div>
+                      
+                      <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                        {box.title}
+                      </h3>
+                      <ul className="text-gray-600 leading-relaxed list-disc list-inside">
+                        {box.points.map((point, idx) => (
+                          <li key={idx} className="mb-1">{point}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    {/* Subtle indicator for hover effect */}
+                    <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className={`h-1 w-8 bg-gradient-to-r ${box.accentColor} rounded-full mr-2`}></div>
+                      <span className={`text-sm font-medium bg-gradient-to-r ${box.accentColor} bg-clip-text text-transparent`}>
+                        Learn more
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

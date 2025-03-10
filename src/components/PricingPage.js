@@ -1,118 +1,512 @@
 import React from "react";
-import { FaCheckCircle } from "react-icons/fa";
 
 const PricingPage = () => {
-  const plans = [
-    {
-      name: "Starter",
-      price: "$9",
-      period: "per month",
-      features: [
-        "Basic features included",
-        "Up to 10 users",
-        "2GB storage",
-        "Email support",
-        "Basic analytics"
-      ],
-      highlighted: false
-    },
-    {
-      name: "Professional",
-      price: "$29",
-      period: "per month",
-      features: [
-        "All Starter features",
-        "Up to 50 users",
-        "10GB storage",
-        "Priority support",
-        "Advanced analytics",
-        "Custom integrations"
-      ],
-      highlighted: true
-    },
-    {
-      name: "Enterprise",
-      price: "$99",
-      period: "per month",
-      features: [
-        "All Professional features",
-        "Unlimited users",
-        "Unlimited storage",
-        "24/7 phone support",
-        "Custom solutions",
-        "Dedicated account manager",
-        "SLA guarantees"
-      ],
-      highlighted: false
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Choose Your Perfect Plan
-          </h1>
-          <p className="text-xl text-gray-600">
-            Simple, transparent pricing that grows with your business
-          </p>
+    <div className="bg-gray-50 py-8 px-4 min-h-screen">
+      <div className="max-w-6xl mx-auto">
+        {/* Heading */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-semibold text-gray-800">Find Your Perfect Plan</h1>
+          <p className="text-gray-500 mt-1">Tailored pricing to match your needs and goals</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`rounded-2xl p-8 ${
-                plan.highlighted
-                  ? "bg-white shadow-xl scale-105 border-2 border-purple-200"
-                  : "bg-white/80 shadow-lg"
-              } transition-all hover:shadow-xl`}
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                  {plan.name}
-                </h2>
-                <div className="flex items-baseline justify-center">
-                  <span className="text-5xl font-bold text-gray-900">
-                    {plan.price}
-                  </span>
-                  <span className="text-gray-500 ml-2">{plan.period}</span>
+        {/* Pricing Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Header Row */}
+          <div className="grid grid-cols-3 border-b">
+            <div className="p-6 font-medium text-gray-800">Features, Support & Integrations</div>
+            <div className="p-6 font-medium text-gray-800 border-l">Starter</div>
+            <div className="p-6 font-medium text-gray-800 border-l">Professional</div>
+          </div>
+
+          {/* Automation Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Automation</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">No. of agents</div>
+              <div className="p-4 border-l text-gray-800">5</div>
+              <div className="p-4 border-l text-gray-800">10</div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Hand off to Support Team</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
                 </div>
               </div>
-
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start">
-                    <FaCheckCircle
-                      className="h-5 w-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0"
-                    />
-                    <span className="text-gray-600">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
-                  plan.highlighted
-                    ? "bg-purple-600 text-white hover:bg-purple-700"
-                    : "bg-purple-100 text-purple-600 hover:bg-purple-200"
-                }`}
-              >
-                Get Started
-              </button>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
             </div>
-          ))}
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Article suggestions</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Multi lingual support</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Support Channels Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Support Channels</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Intercom(voice)</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Customizable chat widget</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Email</div>
+              <div className="p-4 border-l">
+                <div className="">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Text</div>
+              <div className="p-4 border-l">
+                <div className="">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Payment</div>
+              <div className="p-4 border-l">
+                <div className="">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">WhatsApp</div>
+              <div className="p-4 border-l">
+                <div className="">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Ticketing Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Ticketing</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Zendesk</div>
+              <div className="p-4 border-l"></div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Freshdesk</div>
+              <div className="p-4 border-l"></div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Apps Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Apps</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Zapier</div>
+              <div className="p-4 border-l"></div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Slack</div>
+              <div className="p-4 border-l"></div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Training Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Training</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">God's eye</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">PDF file import</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Bulk links import</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Write articles</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Contacts Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Contacts</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Storage</div>
+              <div className="p-4 border-l text-gray-800">5,000</div>
+              <div className="p-4 border-l text-gray-800">50,000</div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Create custom attributes</div>
+              <div className="p-4 border-l text-gray-800">Unlimited</div>
+              <div className="p-4 border-l text-gray-800">Unlimited</div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Export Contacts</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Shared Inbox Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Shared Inbox</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">History</div>
+              <div className="p-4 border-l text-gray-800">Unlimited</div>
+              <div className="p-4 border-l text-gray-800">Unlimited</div>
+            </div>
+          </div>
+
+          {/* Analytics and Reporting Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">Analytics and Reporting</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Conversation volume report</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">CSV export</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* API Access Section */}
+          <div className="border-b">
+            <div className="p-6 border-b bg-gray-50">
+              <span className="font-medium text-gray-800">API Access</span>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">API access</div>
+              <div className="p-4 border-l"></div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 border-b">
+              <div className="p-4 pl-6 text-gray-600">Rate limit</div>
+              <div className="p-4 border-l">
+                <div className="text-green-500 flex justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+              </div>
+              <div className="p-4 border-l"></div>
+            </div>
+          </div>
+
         </div>
 
-        <div className="text-center mt-16">
-          <p className="text-gray-600">
-            Have questions? Contact our sales team at{" "}
-            <a href="mailto:sales@example.com" className="text-purple-600 hover:text-purple-700">
-              convolabsai@gmail.com
-            </a>
-          </p>
-        </div>
+        
       </div>
     </div>
   );

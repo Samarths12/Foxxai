@@ -64,54 +64,6 @@ const CareersPage = () => {
           </div>
         </section>
 
-        {/* Current Openings Section */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center animate-fade-in-down">
-            Current Openings
-          </h2>
-          <div className="bg-white shadow-lg rounded-lg p-6">
-            <ul className="divide-y divide-gray-200">
-              {[
-                {
-                  title: "Frontend Developer",
-                  location: "Remote",
-                  experience: "1+ years",
-                },
-                {
-                  title: "Backend Developer",
-                  location: "Onsite (Delhi)",
-                  experience: "2+ years",
-                },
-                {
-                  title: "UI/UX Designer",
-                  location: "Remote",
-                  experience: "1+ years",
-                },
-              ].map((job, index) => (
-                <li
-                  key={index}
-                  className="py-4 flex justify-between items-center hover:bg-sky-200 transition duration-300 ease-in-out rounded-md px-4"
-                >
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {job.title}
-                    </h3>
-                    <p className="text-gray-600">
-                      Location: {job.location} | Experience: {job.experience}
-                    </p>
-                  </div>
-                  <a
-                    href="#"
-                    className="text-blue-600 font-medium hover:underline"
-                  >
-                    Apply Now
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
         {/* Resume Upload Section */}
         <section>
           <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center animate-fade-in-down">
@@ -155,16 +107,31 @@ const CareersPage = () => {
             </div>
             <div className="mb-4">
               <label
-                htmlFor="socialProfile"
+                htmlFor="linkedin"
                 className="block text-sm font-medium text-gray-700"
               >
-                Social Profile <span className="text-gray-500">(Optional)</span>
+                LinkedIn Profile
               </label>
               <input
                 type="url"
-                id="socialProfile"
-                name="socialProfile"
-                placeholder="e.g., LinkedIn, GitHub, or portfolio URL"
+                id="linkedin"
+                name="linkedin"
+                placeholder="e.g., https://www.linkedin.com/in/yourprofile"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm outline-none text-black placeholder-gray-500"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="github"
+                className="block text-sm font-medium text-gray-700"
+              >
+                GitHub Profile
+              </label>
+              <input
+                type="url"
+                id="github"
+                name="github"
+                placeholder="e.g., https://github.com/yourusername"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm outline-none text-black placeholder-gray-500"
               />
             </div>
@@ -193,11 +160,6 @@ const CareersPage = () => {
           </form>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="font-bold bg-white py-6 text-center text-[#333]">
-        <p>© 2025 ConvolabsAI. All rights reserved.</p>
-      </footer>
     </div>
   );
 };

@@ -73,7 +73,7 @@ function Hero() {
           <p className="text-base sm:text-lg md:text-xl mb-8 md:mb-12 text-gray-700 leading-relaxed px-4">
             <span className="block">AI Agents That work for you: </span>
             <span className="block">
-            Cutting cost, Refining your feedback loop and 10X scaling your growth.
+              Cutting cost, Refining your feedback loop and 10X scaling your growth.
             </span>
           </p>
 
@@ -100,14 +100,14 @@ function Hero() {
             </div>
           </div>
 
-          {/* Buttons - Updated with additional Enquire Now button */}
-          <div className="mb-8 md:mb-12 flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+          {/* Buttons - Commented out Join the Waitlist and centered Enquire Now */}
+          <div className="mb-8 md:mb-12 flex justify-center">
+            {/* <button
               onClick={() => navigate("/signin")}
               className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
             >
               Join the Waitlist
-            </button>
+            </button> */}
             <button
               onClick={() => navigate("/enquiry")}
               className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-base font-semibold rounded-lg shadow-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"

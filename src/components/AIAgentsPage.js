@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Added for navigation
 import { 
   FaBrain, 
   FaComments, 
@@ -12,6 +13,7 @@ import {
 
 const AIAgentsPage = () => {
   const [activeAgent, setActiveAgent] = useState(null);
+  const navigate = useNavigate(); // Hook for navigation
 
   const agents = [
     {
@@ -50,6 +52,11 @@ const AIAgentsPage = () => {
     }
   ];
 
+  // Handler for Get Started buttons
+  const handleGetStarted = () => {
+    navigate('/enquiry');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50">
       {/* Hero Section */}
@@ -63,7 +70,10 @@ const AIAgentsPage = () => {
               Empower your business with intelligent AI agents that transform the way you work. 
               Experience the future of automation and decision-making.
             </p>
-            <button className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 inline-flex items-center">
+            <button 
+              onClick={handleGetStarted}
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 inline-flex items-center"
+            >
               Get Started <FaArrowRight className="ml-2 w-5 h-5" />
             </button>
           </div>
@@ -124,7 +134,8 @@ const AIAgentsPage = () => {
         </div>
       </div>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section - Commented Out */}
+      {/* 
       <div className="bg-gradient-to-br from-purple-50/50 to-indigo-50/50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12 text-indigo-900">What Our Users Say</h2>
@@ -146,13 +157,17 @@ const AIAgentsPage = () => {
           </div>
         </div>
       </div>
+      */}
 
       {/* CTA Section */}
       <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Business?</h2>
           <p className="text-xl mb-8 text-indigo-100">Start using our AI agents today and experience the difference.</p>
-          <button className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300 inline-flex items-center">
+          <button 
+            onClick={handleGetStarted}
+            className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300 inline-flex items-center"
+          >
             Get Started Now <FaArrowRight className="ml-2 w-5 h-5" />
           </button>
         </div>
