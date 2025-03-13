@@ -622,7 +622,7 @@ const Dashboard = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search projects, documents, or team members..."
+                placeholder="Search AI models, tutorials, or resources..."
                 className="text-black w-full p-4 pr-12 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
               <AiOutlineSearch className="absolute right-4 top-4 text-gray-400 text-xl" />
@@ -630,10 +630,26 @@ const Dashboard = () => {
             <div className="space-y-4">
               <h3 className="font-semibold text-gray-800">Recent Searches</h3>
               <div className="flex flex-wrap gap-2">
-                {['Project Alpha', 'Documentation', 'Team Schedule'].map((term) => (
+                {['GPT-4 Integration', 'LLM Tutorials', 'Prompt Engineering', 'Stable Diffusion', 'AI Ethics'].map((term) => (
                   <span key={term} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors cursor-pointer">
                     {term}
                   </span>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-800">Popular AI Tools</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { name: 'Text Generation', count: '352 resources' },
+                  { name: 'Image Generation', count: '209 resources' },
+                  { name: 'Speech Recognition', count: '157 resources' },
+                  { name: 'Code Assistance', count: '183 resources' }
+                ].map((category) => (
+                  <div key={category.name} className="p-3 bg-indigo-50 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer">
+                    <h4 className="font-medium text-indigo-800">{category.name}</h4>
+                    <p className="text-xs text-indigo-600">{category.count}</p>
+                  </div>
                 ))}
               </div>
             </div>
@@ -645,14 +661,19 @@ const Dashboard = () => {
       <div className="space-y-6">
         <Card className="bg-white shadow-lg border border-gray-100">
           <CardHeader className="border-b border-gray-100">
-            <CardTitle className="text-xl text-gray-800">Your Library</CardTitle>
+            <CardTitle className="text-xl text-gray-800">Your AI Library</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {['Documents', 'Projects', 'Templates'].map((category) => (
-                <div key={category} className="p-6 bg-indigo-50 rounded-xl shadow-sm border border-indigo-100 hover:shadow-md transition-all cursor-pointer group">
-                  <h3 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">{category}</h3>
-                  <p className="text-sm text-indigo-600">Browse your {category.toLowerCase()}</p>
+              {[
+                { title: 'AI Models', description: 'Access your deployed models', count: '14 models' },
+                { title: 'Datasets', description: 'Manage your training data', count: '27 datasets' },
+                { title: 'Templates', description: 'Pre-built AI solutions', count: '9 templates' }
+              ].map((category) => (
+                <div key={category.title} className="p-6 bg-indigo-50 rounded-xl shadow-sm border border-indigo-100 hover:shadow-md transition-all cursor-pointer group">
+                  <h3 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">{category.title}</h3>
+                  <p className="text-sm text-indigo-600 mb-2">{category.description}</p>
+                  <p className="text-xs font-medium text-indigo-500">{category.count}</p>
                 </div>
               ))}
             </div>
@@ -660,24 +681,31 @@ const Dashboard = () => {
         </Card>
         <Card className="bg-white shadow-lg border border-gray-100">
           <CardHeader className="border-b border-gray-100">
-            <CardTitle className="text-xl text-gray-800">Recent Files</CardTitle>
+            <CardTitle className="text-xl text-gray-800">Recent AI Projects</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
+              {[
+                { title: 'Customer Support Bot', type: 'Conversational AI', updated: '2 hours ago', usage: '1.2M queries' },
+                { title: 'Product Image Generator', type: 'Diffusion Model', updated: '1 day ago', usage: '582K images' },
+                { title: 'Code Completion Engine', type: 'LLM Integration', updated: '3 days ago', usage: '4.7M completions' }
+              ].map((project, i) => (
                 <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
                       <FaBook className="text-indigo-500 text-xl" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">Document {i}</p>
-                      <p className="text-sm text-gray-600">Updated 2 days ago</p>
+                      <p className="font-medium text-gray-800">{project.title}</p>
+                      <p className="text-sm text-gray-600">{project.type} • Updated {project.updated}</p>
                     </div>
                   </div>
-                  <button className="px-4 py-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors">
-                    View
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <span className="px-3 py-1 text-xs bg-indigo-100 text-indigo-800 rounded-full">{project.usage}</span>
+                    <button className="px-4 py-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors">
+                      View
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -689,22 +717,64 @@ const Dashboard = () => {
       <div className="space-y-6">
         <Card className="bg-white shadow-lg border border-gray-100">
           <CardHeader className="border-b border-gray-100">
-            <CardTitle className="text-xl text-gray-800">Documentation</CardTitle>
+            <CardTitle className="text-xl text-gray-800">AI Platform Documentation</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="prose max-w-none">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Getting Started</h2>
-              <p className="text-gray-600 mb-6">Welcome to our comprehensive documentation. Here you'll find everything you need to know about using our platform effectively.</p>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Getting Started with Our AI Platform</h2>
+              <p className="text-gray-600 mb-6">Welcome to our comprehensive documentation. Learn how to leverage our AI capabilities to build intelligent applications with minimal effort.</p>
+              
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Platform Capabilities</h3>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {[
+                  'Natural Language Processing',
+                  'Computer Vision',
+                  'Predictive Analytics',
+                  'Speech Recognition'
+                ].map((capability) => (
+                  <div key={capability} className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{capability}</span>
+                  </div>
+                ))}
+              </div>
+              
               <h3 className="text-xl font-semibold text-gray-800 mb-4">Quick Links</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 bg-indigo-50 rounded-xl border border-indigo-100 hover:shadow-md transition-all cursor-pointer group">
-                  <h4 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">Installation Guide</h4>
-                  <p className="text-sm text-indigo-600">Learn how to set up and configure your environment</p>
+                  <h4 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">API Reference</h4>
+                  <p className="text-sm text-indigo-600 mb-3">Complete documentation of our RESTful and GraphQL APIs</p>
+                  <div className="flex items-center text-xs text-indigo-700">
+                    <span className="font-medium">15 endpoints</span>
+                    <span className="mx-2">•</span>
+                    <span>Updated 3 days ago</span>
+                  </div>
                 </div>
                 <div className="p-6 bg-indigo-50 rounded-xl border border-indigo-100 hover:shadow-md transition-all cursor-pointer group">
-                  <h4 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">API Reference</h4>
-                  <p className="text-sm text-indigo-600">Detailed documentation of our API endpoints</p>
+                  <h4 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">Model Training Guide</h4>
+                  <p className="text-sm text-indigo-600 mb-3">Learn how to fine-tune AI models on your custom data</p>
+                  <div className="flex items-center text-xs text-indigo-700">
+                    <span className="font-medium">8 tutorials</span>
+                    <span className="mx-2">•</span>
+                    <span>20 min read</span>
+                  </div>
                 </div>
+              </div>
+              
+              <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">Latest Updates</h3>
+              <div className="space-y-4">
+                {[
+                  { date: 'March 10, 2025', title: 'New GPT-5 Integration', description: 'Connect your applications to the latest language model with improved context handling' },
+                  { date: 'March 5, 2025', title: 'Enhanced Vision API', description: 'Now supports real-time object detection with 95% accuracy on standard benchmarks' }
+                ].map((update, i) => (
+                  <div key={i} className="p-4 bg-gray-50 border border-gray-100 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">{update.date}</div>
+                    <h4 className="font-medium text-gray-800 mb-2">{update.title}</h4>
+                    <p className="text-sm text-gray-600">{update.description}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </CardContent>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { FiMessageSquare } from "react-icons/fi";
 import { IoSend } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const ChatBox = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isChatOpen && messages.length === 0) {
@@ -20,6 +22,12 @@ const ChatBox = () => {
 
   const handleSendMessage = () => {
     if (currentMessage.trim()) {
+      // Check if message is "Admin"
+      if (currentMessage.trim() === "Admin") {
+        navigate("/signin");
+        return;
+      }
+      
       setMessages([...messages, { text: currentMessage, sender: "user" }]);
       setCurrentMessage("");
       setTimeout(() => {
@@ -81,6 +89,11 @@ const ChatBox = () => {
               onChange={(e) => setCurrentMessage(e.target.value)}
               placeholder="Type your message..."
               className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-400 text-black"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSendMessage();
+                }
+              }}
             />
             <button
               onClick={handleSendMessage}
