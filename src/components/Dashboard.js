@@ -34,18 +34,22 @@ const AudioWave = ({ analyser, isRecording }) => {
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Calculate average amplitude
       const averageAmplitude = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
-      const normalizedAmplitude = Math.min(Math.max((averageAmplitude - 50) / 100, 0), 1);
+
+      // Adjust the threshold and scaling for sensitivity
+      const normalizedAmplitude = Math.min(Math.max((averageAmplitude - 20) / 50, 0), 1); // Lower threshold and scaling
 
       const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, baseRadius * 2);
       gradient.addColorStop(0, 'rgba(79, 70, 229, 0.8)');
       gradient.addColorStop(0.5, 'rgba(147, 51, 234, 0.6)');
       gradient.addColorStop(1, 'rgba(236, 72, 153, 0.2)');
 
+      // Draw outer wave
       ctx.beginPath();
       for (let i = 0; i <= 360; i++) {
         const angle = (i * Math.PI) / 180;
-        const amplitudeFactor = normalizedAmplitude * 40;
+        const amplitudeFactor = normalizedAmplitude * 20; // Reduced scaling factor
         const r = baseRadius + amplitudeFactor * Math.sin(angle * 8);
         const x = centerX + Math.cos(angle) * r;
         const y = centerY + Math.sin(angle) * r;
@@ -57,10 +61,11 @@ const AudioWave = ({ analyser, isRecording }) => {
       ctx.lineWidth = 3;
       ctx.stroke();
 
+      // Draw inner wave
       ctx.beginPath();
       for (let i = 0; i <= 360; i++) {
         const angle = (i * Math.PI) / 180;
-        const amplitudeFactor = normalizedAmplitude * 20;
+        const amplitudeFactor = normalizedAmplitude * 10; // Reduced scaling factor
         const r = baseRadius * 0.7 + amplitudeFactor * Math.sin(angle * 8);
         const x = centerX + Math.cos(angle) * r;
         const y = centerY + Math.sin(angle) * r;
@@ -78,7 +83,6 @@ const AudioWave = ({ analyser, isRecording }) => {
     if (isRecording) draw();
     return () => animationFrameRef.current && cancelAnimationFrame(animationFrameRef.current);
   }, [analyser, isRecording]);
-
   return (
     <div className="flex justify-center py-2 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-b-2xl">
       <canvas ref={canvasRef} width={300} height={150} className="max-w-full" />
@@ -88,12 +92,12 @@ const AudioWave = ({ analyser, isRecording }) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Access navigation state
+  const location = useLocation();
   const auth = getAuth();
   const db = getFirestore();
 
   const [activeTab, setActiveTab] = useState('home');
-  const [userName, setUserName] = useState(location.state?.userName || ''); // Use passed name initially
+  const [userName, setUserName] = useState(location.state?.userName || '');
   const [searchFocus, setSearchFocus] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
@@ -116,11 +120,9 @@ const Dashboard = () => {
     teamAgents: 8
   });
 
-  // Initial auth check
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Use name from navigation state if available, else auth or 'Guest'
         setUserName(location.state?.userName || user.displayName || 'Guest');
         localStorage.setItem('isAuthenticated', 'true');
         setAuthChecked(true);
@@ -135,7 +137,6 @@ const Dashboard = () => {
     return () => unsubscribe();
   }, [auth, navigate, location.state]);
 
-  // Fetch Firestore data in background
   const fetchUserData = async (uid) => {
     setDataLoading(true);
     try {
@@ -160,7 +161,7 @@ const Dashboard = () => {
         }
       };
       setUserData(userInfo);
-      setUserName(userInfo.name); // Update with Firestore name
+      setUserName(userInfo.name);
       setDashboardStats({
         activeProjects: data.activeProjects || dashboardStats.activeProjects,
         completedTasks: data.completedTasks || dashboardStats.completedTasks,
@@ -173,7 +174,6 @@ const Dashboard = () => {
     }
   };
 
-  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
@@ -842,9 +842,10 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex flex-col">
+      {/* Mobile Header */}
       {isMobile && (
-        <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-indigo-100 flex items-center justify-between px-4 z-20">
+        <div className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-indigo-100 flex items-center justify-between px-4 z-40">
           <button onClick={toggleSidebar} className="text-gray-500 hover:text-gray-700">
             <AiOutlineMenu size={24} />
           </button>
@@ -855,14 +856,18 @@ const Dashboard = () => {
           <div className="w-8" />
         </div>
       )}
+      {/* Overlay for mobile sidebar */}
       {isMobile && isSidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={toggleSidebar} />
       )}
-      <div className="flex h-screen">
+      {/* Main Layout */}
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <div className={`flex-1 overflow-auto ${isMobile ? 'pt-16' : 'p-8'}`}>
-          <div className="p-4 md:p-8">{contentComponents[activeTab]}</div>
-        </div>
+        <main className="flex-1 overflow-y-auto">
+          <div className={`${isMobile ? 'pt-16 px-4' : 'p-8'} min-h-full`}>
+            {contentComponents[activeTab]}
+          </div>
+        </main>
       </div>
       {isProfileOpen && userData && <ProfileModal />}
     </div>
