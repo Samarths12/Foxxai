@@ -3,7 +3,7 @@ import './tailwindstyles.css';
 
 const CareersPage = () => {
   return (
-    <div className="bg-sky-100 font-sans min-h-screen">
+    <div className="bg-gradient-to-b from-purple-100 to-blue-100 font-sans min-h-screen">
       {/* Header Section */}
       <header className="bg-gradient-to-r from-blue-400 via-indigo-500 to-indigo-700 text-white py-8">
         <div className="container mx-auto px-4 text-center">
@@ -12,11 +12,6 @@ const CareersPage = () => {
           </h1>
           <p className="text-lg mt-2 font-medium animate-fade-in-up">
             Join us in shaping the future!
-          </p>
-          <p
-            className="text-lg mt-4 font-semibold bg-clip-text text-black"
-          >
-            Fail Fast Learn Fast
           </p>
         </div>
       </header>
@@ -73,7 +68,7 @@ const CareersPage = () => {
             action="/upload"
             method="POST"
             encType="multipart/form-data"
-            className="bg-white shadow-lg rounded-lg p-6 mx-auto max-w-2xl"
+            className="bg-white shadow-lg rounded-lg p-6 mx-auto max-w-3xl" // Changed from max-w-2xl to max-w-3xl
           >
             <div className="mb-4">
               <label

@@ -7,7 +7,7 @@ import logo from './logo.jpg';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 
-// Audio Visualization Component
+
 const AudioWave = ({ analyser, isRecording }) => {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
@@ -17,11 +17,15 @@ const AudioWave = ({ analyser, isRecording }) => {
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const baseRadius = 60;
+    
+    const resizeCanvas = () => {
+      canvas.width = canvas.parentElement.clientWidth * 0.95;
+      canvas.height = Math.min(250, window.innerHeight * 0.3);
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-    analyser.fftSize = 256;
+    analyser.fftSize = 2048; // Increased for even smoother visuals
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
@@ -34,62 +38,138 @@ const AudioWave = ({ analyser, isRecording }) => {
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Calculate average amplitude
-      const averageAmplitude = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+      // Enhanced background with dual gradients
+      const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      bgGradient.addColorStop(0, 'rgba(59, 7, 100, 0.2)');
+      bgGradient.addColorStop(0.5, 'rgba(147, 51, 234, 0.1)');
+      bgGradient.addColorStop(1, 'rgba(236, 72, 153, 0.2)');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Adjust the threshold and scaling for sensitivity
-      const normalizedAmplitude = Math.min(Math.max((averageAmplitude - 20) / 50, 0), 1); // Lower threshold and scaling
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const barWidth = canvas.width / bufferLength * 2;
+      const halfBuffer = Math.floor(bufferLength / 2);
 
-      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, baseRadius * 2);
-      gradient.addColorStop(0, 'rgba(79, 70, 229, 0.8)');
-      gradient.addColorStop(0.5, 'rgba(147, 51, 234, 0.6)');
-      gradient.addColorStop(1, 'rgba(236, 72, 153, 0.2)');
+      // Symmetrical waves from center to both sides
+      for (let i = 0; i < halfBuffer; i++) {
+        const amplitude = dataArray[i] / 255;
+        const height = amplitude * canvas.height * 0.9;
+        const hue = (i / halfBuffer) * 360;
+        const timeFactor = Date.now() * 0.005;
 
-      // Draw outer wave
-      ctx.beginPath();
-      for (let i = 0; i <= 360; i++) {
-        const angle = (i * Math.PI) / 180;
-        const amplitudeFactor = normalizedAmplitude * 20; // Reduced scaling factor
-        const r = baseRadius + amplitudeFactor * Math.sin(angle * 8);
-        const x = centerX + Math.cos(angle) * r;
-        const y = centerY + Math.sin(angle) * r;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        // Left side wave
+        const leftX = centerX - (i * barWidth * 1.2);
+        ctx.fillStyle = `hsl(${hue}, 90%, ${50 + amplitude * 30}%)`;
+        
+        // Left particle wave
+        ctx.beginPath();
+        ctx.arc(
+          leftX,
+          centerY + Math.sin(i * 0.15 + timeFactor) * height * 0.4,
+          barWidth * (0.6 + amplitude * 0.6),
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        // Right side wave (mirrored)
+        const rightX = centerX + (i * barWidth * 1.2);
+        ctx.beginPath();
+        ctx.arc(
+          rightX,
+          centerY + Math.sin(i * 0.15 + timeFactor) * height * 0.4,
+          barWidth * (0.6 + amplitude * 0.6),
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        // Reflection effect (both sides)
+        ctx.fillStyle = `hsla(${hue}, 90%, ${50 + amplitude * 30}%, 0.3)`;
+        ctx.beginPath();
+        ctx.arc(
+          leftX,
+          centerY - Math.sin(i * 0.15 + timeFactor) * height * 0.4,
+          barWidth * (0.6 + amplitude * 0.6) * 0.8,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(
+          rightX,
+          centerY - Math.sin(i * 0.15 + timeFactor) * height * 0.4,
+          barWidth * (0.6 + amplitude * 0.6) * 0.8,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
       }
-      ctx.closePath();
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = 3;
-      ctx.stroke();
 
-      // Draw inner wave
+      // Enhanced central pulse with orbiting particles
+      const avgAmplitude = dataArray.reduce((sum, val) => sum + val, 0) / bufferLength / 255;
+      const pulseSize = 40 + avgAmplitude * 50;
+      const pulseGradient = ctx.createRadialGradient(
+        centerX,
+        centerY,
+        0,
+        centerX,
+        centerY,
+        pulseSize
+      );
+      pulseGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+      pulseGradient.addColorStop(0.5, 'rgba(147, 51, 234, 0.5)');
+      pulseGradient.addColorStop(1, 'rgba(236, 72, 153, 0)');
+
       ctx.beginPath();
-      for (let i = 0; i <= 360; i++) {
-        const angle = (i * Math.PI) / 180;
-        const amplitudeFactor = normalizedAmplitude * 10; // Reduced scaling factor
-        const r = baseRadius * 0.7 + amplitudeFactor * Math.sin(angle * 8);
-        const x = centerX + Math.cos(angle) * r;
-        const y = centerY + Math.sin(angle) * r;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+      ctx.arc(
+        centerX,
+        centerY,
+        pulseSize * (1 + Math.sin(Date.now() * 0.004)),
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = pulseGradient;
+      ctx.fill();
+
+      // Orbiting particles
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2 + Date.now() * 0.002;
+        const orbitRadius = pulseSize * 1.2 + Math.sin(Date.now() * 0.003) * 10;
+        ctx.beginPath();
+        ctx.arc(
+          centerX + Math.cos(angle) * orbitRadius,
+          centerY + Math.sin(angle) * orbitRadius,
+          4 + avgAmplitude * 4,
+          0,
+          Math.PI * 2
+        );
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.7 + Math.sin(Date.now() * 0.005) * 0.2})`;
+        ctx.fill();
       }
-      ctx.closePath();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
 
       animationFrameRef.current = requestAnimationFrame(draw);
     };
 
     if (isRecording) draw();
-    return () => animationFrameRef.current && cancelAnimationFrame(animationFrameRef.current);
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    };
   }, [analyser, isRecording]);
+
   return (
-    <div className="flex justify-center py-2 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-b-2xl">
-      <canvas ref={canvasRef} width={300} height={150} className="max-w-full" />
+    <div className="relative overflow-hidden bg-gradient-to-b from-indigo-900/20 to-purple-900/20 rounded-b-2xl shadow-inner">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15),transparent)] animate-pulse-slow" />
+      <canvas 
+        ref={canvasRef} 
+        className="w-full max-w-[1000px] mx-auto relative z-10"
+      />
     </div>
   );
 };
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -461,12 +541,12 @@ const Dashboard = () => {
     { id: 'search', icon: AiOutlineSearch, label: 'Search' },
     { id: 'library', icon: FaBook, label: 'Library' },
     { id: 'documentation', icon: AiOutlineBook, label: 'Documentation' },
-    { id: 'pricing', icon: FaTags, label: 'Pricing' },
+    { id: 'billing', icon: FaTags, label: 'Billing' },
   ];
 
   const Sidebar = () => (
     <div className={`
-      fixed md:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-indigo-100 shadow-lg
+      fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-indigo-100 shadow-lg
       transform transition-transform duration-300 ease-in-out
       ${isMobile ? (isSidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}
       flex flex-col
@@ -509,17 +589,16 @@ const Dashboard = () => {
       </div>
     </div>
   );
-
   const SearchBar = () => (
-    <div className="relative group">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-md opacity-75 group-hover:opacity-100 transition-opacity"></div>
-      <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div className="relative group z-20">
+      <div className={`absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl transition-all duration-300 ${isRecording ? 'opacity-100 blur-xl scale-105' : 'opacity-75 blur-md scale-100'}`} />
+      <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-white/20">
         <div className="flex items-center p-4">
-          <FaSearch className="text-gray-400 text-xl mr-4" />
+          <FaSearch className="text-gray-500 text-xl mr-4 flex-shrink-0" />
           <input
             type="text"
-            placeholder="What AI solution are you looking for?"
-            className="w-full text-lg text-gray-800 placeholder-gray-400 bg-transparent border-none outline-none"
+            placeholder="Ask anything with voice or text..."
+            className="w-full text-lg text-gray-800 placeholder-gray-400 bg-transparent border-none outline-none transition-all duration-300"
             onFocus={() => setSearchFocus(true)}
             onBlur={() => setSearchFocus(false)}
           />
@@ -528,12 +607,17 @@ const Dashboard = () => {
               if (isRecording) stopRecording();
               else startRecording();
             }}
-            className={`ml-4 p-2 rounded-full transition-colors duration-200 ${isRecording ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'text-gray-500 hover:bg-gray-100'}`}
+            className={`ml-4 p-2 rounded-full transition-all duration-300 relative overflow-hidden group/button ${isRecording ? 'bg-red-500/10 text-red-500 scale-110' : 'text-gray-500 hover:bg-gray-100'}`}
           >
-            <FaMicrophone className={`text-xl ${isRecording ? 'animate-pulse' : ''}`} />
+            <span className={`absolute inset-0 bg-gradient-to-r from-red-500/0 to-red-500/20 scale-0 group-hover/button:scale-150 origin-center transition-transform duration-300 ${isRecording ? 'scale-150' : ''}`} />
+            <FaMicrophone className={`text-xl relative z-10 ${isRecording ? 'animate-pulse' : ''}`} />
           </button>
         </div>
-        {isRecording && <AudioWave analyser={analyser} isRecording={isRecording} />}
+        {isRecording && (
+          <div className="px-4 pb-4">
+            <AudioWave analyser={analyser} isRecording={isRecording} />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -764,7 +848,7 @@ const Dashboard = () => {
               </div>
               
               <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">Latest Updates</h3>
-              <div className="space-y-4">
+              <div className="space-y-4 mb-8">
                 {[
                   { date: 'March 10, 2025', title: 'New GPT-5 Integration', description: 'Connect your applications to the latest language model with improved context handling' },
                   { date: 'March 5, 2025', title: 'Enhanced Vision API', description: 'Now supports real-time object detection with 95% accuracy on standard benchmarks' }
@@ -776,16 +860,118 @@ const Dashboard = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Additional ConvolabsAI Content */}
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">ConvolabsAI: Your AI Partner for SMEs</h2>
+              <p className="text-gray-600 mb-6">ConvoLabs AI empowers SMEs in logistics, automotive, and retail with intelligent AI agents. Our platform offers 24/7 multichannel support (voice calls, emails, texts, payments, sales, marketing), seamless robotics integration, humanlike voices, an auto-improving feedback loop, and ultra-low latency. Learn how to leverage these features to save time, reduce costs, and grow your business with minimal effort.</p>
+
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Key Features at a Glance</h3>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <p className="text-gray-700 font-medium">Multichannel Support</p>
+                  <p className="text-gray-600 text-sm">Handle customer inquiries 24/7 across voice, email, and text.</p>
+                  <p className="text-gray-500 text-sm italic">Example: Respond to a retail customer’s text about product availability while processing a payment via email.</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Robotics Integration</p>
+                  <p className="text-gray-600 text-sm">Automate tasks with vehicles, drones, and robotics.</p>
+                  <p className="text-gray-500 text-sm italic">Example: Schedule drone deliveries for logistics with real-time tracking and customer updates.</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Humanlike Voices</p>
+                  <p className="text-gray-600 text-sm">Engage customers with natural voices in English, Hindi, Hinglish (professional, friendly, conversational tones).</p>
+                  <p className="text-gray-500 text-sm italic">Example: A logistics client hears a professional voice update on their shipment status.</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Auto-Improving Feedback Loop</p>
+                  <p className="text-gray-600 text-sm">AI learns and adapts to your business needs.</p>
+                  <p className="text-gray-500 text-sm italic">Example: Optimizes delivery routes for logistics SMEs based on past patterns.</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Ultra-Low Latency</p>
+                  <p className="text-gray-600 text-sm">Instant responses for real-time support.</p>
+                  <p className="text-gray-500 text-sm italic">Example: Delivers shipment updates in milliseconds, ensuring no delays in customer communication.</p>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Quick Start Guide</h3>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <p className="text-gray-700 font-medium">Set Up Your Account</p>
+                  <p className="text-gray-600 text-sm">Sign up and connect your SME’s tools (CRMs, payment systems, robotics frameworks, email, text, WhatsApp, webpage/app, phone calls) in under 10 minutes.</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Choose Your Channels</p>
+                  <p className="text-gray-600 text-sm">Enable voice calls, emails, texts, or all—customize to your needs.</p>
+                  <p className="text-gray-500 text-sm italic">Setup Time: ~3 minutes per channel.</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Test and Launch</p>
+                  <p className="text-gray-600 text-sm">Run a test interaction (e.g., a voice call or text) and go live.</p>
+                  <p className="text-gray-500 text-sm italic">Test Duration: ~5 minutes; go live instantly.</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Monitor and Improve</p>
+                  <p className="text-gray-600 text-sm">Use our dashboard to track performance; the feedback loop auto-improves over time.</p>
+                  <p className="text-gray-500 text-sm italic">First Improvement Cycle: Visible within 48 hours of usage.</p>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Quick Links</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="p-6 bg-indigo-50 rounded-xl border border-indigo-100 hover:shadow-md transition-all cursor-pointer group">
+                  <h4 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">Integration Guide</h4>
+                  <p className="text-sm text-indigo-600 mb-3">Step-by-step instructions to connect NamasteAI with your tools.</p>
+                  <div className="flex items-center text-xs text-indigo-700">
+                    <span className="font-medium">15 endpoints</span>
+                    <span className="mx-2">•</span>
+                    <span>Updated 2 days ago</span>
+                  </div>
+                </div>
+                <div className="p-6 bg-indigo-50 rounded-xl border border-indigo-100 hover:shadow-md transition-all cursor-pointer group">
+                  <h4 className="font-semibold text-indigo-900 mb-2 group-hover:text-indigo-700">Voice Customization Guide</h4>
+                  <p className="text-sm text-indigo-600 mb-3">Learn how to set up humanlike voices for your SME’s needs.</p>
+                  <div className="flex items-center text-xs text-indigo-700">
+                    <span className="font-medium">10 voice styles</span>
+                    <span className="mx-2">•</span>
+                    <span>5 min read</span>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Latest Updates</h3>
+              <div className="space-y-4 mb-6">
+                <div className="p-4 bg-gray-50 border border-gray-100 rounded-lg">
+                  <p className="text-gray-800 font-medium">Enhanced Multichannel Support</p>
+                  <p className="text-gray-600 text-sm">Added payment processing and marketing campaign automation for seamless operations.</p>
+                </div>
+                <div className="p-4 bg-gray-50 border border-gray-100 rounded-lg">
+                  <p className="text-gray-800 font-medium">Improved Feedback Loop</p>
+                  <p className="text-gray-600 text-sm">Now adapts 20% faster to SME-specific patterns, optimizing performance.</p>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Get Support</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-gray-700 font-medium">Live Chat</p>
+                  <p className="text-gray-600 text-sm">Connect with our team for setup help (available 24/7).</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">Email Support</p>
+                  <p className="text-gray-600 text-sm">Reach us at <a href="mailto:convolabsai@gmail.com" className="text-indigo-600 hover:underline">convolabsai@gmail.com</a> for detailed queries.</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
     ),
-    pricing: (
+    billing: (
       <div className="space-y-6">
         <Card className="bg-white shadow-lg border border-gray-200 rounded-lg">
           <CardHeader className="border-b border-gray-200">
-            <CardTitle className="text-2xl font-semibold text-gray-800">Pricing Plans</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-gray-800">Billing Plans</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -842,7 +1028,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex">
       {/* Mobile Header */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-indigo-100 flex items-center justify-between px-4 z-40">
@@ -861,10 +1047,10 @@ const Dashboard = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={toggleSidebar} />
       )}
       {/* Main Layout */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex w-full">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">
-          <div className={`${isMobile ? 'pt-16 px-4' : 'p-8'} min-h-full`}>
+        <main className="flex-1 overflow-y-auto" style={{ marginLeft: isMobile ? '0' : '16rem' }}>
+          <div className={`${isMobile ? 'pt-16 px-4' : 'p-8'} min-h-screen`}>
             {contentComponents[activeTab]}
           </div>
         </main>

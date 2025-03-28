@@ -1,46 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaLock, FaGoogle, FaPhone } from 'react-icons/fa';
-import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaUser, FaEnvelope, FaLock, FaGoogle, FaPhone } from "react-icons/fa";
+import {
+  auth,
+  googleProvider,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  setPersistence,
-  browserLocalPersistence
-} from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBtFGTT1WOfvcjr2UfHDOMj_Kg1qwqzORg",
-  authDomain: "convolabsqueue.firebaseapp.com",
-  projectId: "convolabsqueue",
-  storageBucket: "convolabsqueue.appspot.com",
-  messagingSenderId: "987301055298",
-  appId: "1:987301055298:web:788a79263d5f92616016db",
-  measurementId: "G-KXXJGCLP88"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
-
-// Set persistence to LOCAL
-setPersistence(auth, browserLocalPersistence);
+  db,
+  doc,
+  setDoc,
+  getDoc,
+} from "../firebase"; // Adjust path if needed
 
 const AuthComponent = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    mobile: ''
+    name: "",
+    email: "",
+    password: "",
+    mobile: "",
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -49,9 +29,9 @@ const AuthComponent = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', user.email);
-        navigate('/dashboard', { replace: true }); // Immediate redirect
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userEmail", user.email);
+        navigate("/dashboard", { replace: true });
       }
     });
     return () => unsubscribe();
@@ -60,19 +40,23 @@ const AuthComponent = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!isLogin) {
-      if (!formData.name || formData.name.length < 2) newErrors.name = 'Name must be at least 2 characters long';
-      if (!formData.mobile || !/^\d{10}$/.test(formData.mobile)) newErrors.mobile = 'Please enter a valid 10-digit mobile number';
+      if (!formData.name || formData.name.length < 2)
+        newErrors.name = "Name must be at least 2 characters long";
+      if (!formData.mobile || !/^\d{10}$/.test(formData.mobile))
+        newErrors.mobile = "Please enter a valid 10-digit mobile number";
     }
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email';
-    if (!formData.password || formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters long';
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Please enter a valid email";
+    if (!formData.password || formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters long";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleAuth = async (e) => {
@@ -84,40 +68,40 @@ const AuthComponent = () => {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
         const user = userCredential.user;
-        // Fetch Firestore data for returning user
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         const userData = userDoc.exists() ? userDoc.data() : {};
-        const userName = userData.name || user.displayName || 'Guest';
-        
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', formData.email);
-        window.dispatchEvent(new Event('storage'));
-        navigate('/dashboard', { 
-          replace: true, 
-          state: { userName } // Pass userName to Dashboard
+        const userName = userData.name || user.displayName || "Guest";
+
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userEmail", formData.email);
+        window.dispatchEvent(new Event("storage"));
+        navigate("/dashboard", {
+          replace: true,
+          state: { userName },
         });
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-        await setDoc(doc(db, 'users', userCredential.user.uid), {
+        await setDoc(doc(db, "users", userCredential.user.uid), {
           name: formData.name,
           email: formData.email,
           mobile: formData.mobile,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         });
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', formData.email);
-        window.dispatchEvent(new Event('storage'));
-        navigate('/dashboard', { 
-          replace: true, 
-          state: { userName: formData.name } // Pass new user's name
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userEmail", formData.email);
+        window.dispatchEvent(new Event("storage"));
+        navigate("/dashboard", {
+          replace: true,
+          state: { userName: formData.name },
         });
       }
     } catch (error) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        submit: error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found'
-          ? 'Invalid email or password'
-          : error.message
+        submit:
+          error.code === "auth/wrong-password" || error.code === "auth/user-not-found"
+            ? "Invalid email or password"
+            : error.message,
       }));
     } finally {
       setLoading(false);
@@ -128,21 +112,25 @@ const AuthComponent = () => {
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      await setDoc(doc(db, 'users', result.user.uid), {
-        name: result.user.displayName,
-        email: result.user.email,
-        photoURL: result.user.photoURL,
-        createdAt: new Date().toISOString()
-      }, { merge: true });
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', result.user.email);
-      window.dispatchEvent(new Event('storage'));
-      navigate('/dashboard', { 
-        replace: true, 
-        state: { userName: result.user.displayName } // Pass Google user's name
+      await setDoc(
+        doc(db, "users", result.user.uid),
+        {
+          name: result.user.displayName,
+          email: result.user.email,
+          photoURL: result.user.photoURL,
+          createdAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("userEmail", result.user.email);
+      window.dispatchEvent(new Event("storage"));
+      navigate("/dashboard", {
+        replace: true,
+        state: { userName: result.user.displayName },
       });
     } catch (error) {
-      setErrors(prev => ({ ...prev, submit: error.message }));
+      setErrors((prev) => ({ ...prev, submit: error.message }));
     } finally {
       setLoading(false);
     }
@@ -154,13 +142,17 @@ const AuthComponent = () => {
         <div className="flex mb-8 bg-purple-100 rounded-lg p-1">
           <button
             onClick={() => setIsLogin(true)}
-            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'}`}
+            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${
+              isLogin ? "bg-white shadow-md text-purple-700" : "text-purple-600"
+            }`}
           >
             Login
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${!isLogin ? 'bg-white shadow-md text-purple-700' : 'text-purple-600'}`}
+            className={`flex-1 py-2 rounded-lg transition-all duration-300 ${
+              !isLogin ? "bg-white shadow-md text-purple-700" : "text-purple-600"
+            }`}
           >
             Sign Up
           </button>
@@ -178,7 +170,7 @@ const AuthComponent = () => {
                     placeholder="Full Name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    style={{ color: 'black' }}
+                    style={{ color: "black" }}
                     className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                   />
                 </div>
@@ -193,7 +185,7 @@ const AuthComponent = () => {
                     placeholder="Mobile Number"
                     value={formData.mobile}
                     onChange={handleInputChange}
-                    style={{ color: 'black' }}
+                    style={{ color: "black" }}
                     className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                   />
                 </div>
@@ -210,7 +202,7 @@ const AuthComponent = () => {
                 placeholder="Email Address"
                 value={formData.email}
                 onChange={handleInputChange}
-                style={{ color: 'black' }}
+                style={{ color: "black" }}
                 className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
             </div>
@@ -225,7 +217,7 @@ const AuthComponent = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleInputChange}
-                style={{ color: 'black' }}
+                style={{ color: "black" }}
                 className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
             </div>
@@ -237,7 +229,7 @@ const AuthComponent = () => {
             disabled={loading}
             className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : isLogin ? 'Login' : 'Sign Up'}
+            {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
           </button>
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">

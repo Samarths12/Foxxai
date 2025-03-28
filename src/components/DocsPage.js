@@ -7,12 +7,13 @@ import {
   FaPuzzlePiece,
   FaQuestionCircle,
   FaSearch,
-  FaArrowRight,
-  FaGithub
+  FaArrowRight
 } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const DocsPage = () => {
   const [activeSection, setActiveSection] = useState('getting-started');
+  const navigate = useNavigate();
 
   const docSections = [
     {
@@ -70,6 +71,10 @@ const DocsPage = () => {
       description: "Common questions answered"
     }
   ];
+
+  const handleGetStarted = () => {
+    navigate('/enquiry');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50">
@@ -139,19 +144,17 @@ const DocsPage = () => {
         </div>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-500 mt-16">
+      {/* CTA Section (Replaced "Need more help?" section) */}
+      <div className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Need more help?</h2>
-          <p className="text-indigo-100 mb-6">Join our developer community or check out our GitHub repository</p>
-          <div className="flex justify-center space-x-4">
-            <button className="bg-white text-indigo-600 px-6 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300 inline-flex items-center">
-              Join Community <FaArrowRight className="ml-2 w-4 h-4" />
-            </button>
-            <button className="bg-white text-indigo-600 px-6 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300 inline-flex items-center">
-              <FaGithub className="mr-2 w-4 h-4" /> View on GitHub
-            </button>
-          </div>
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Business?</h2>
+          <p className="text-xl mb-8 text-indigo-100">Start using our AI agents today and experience the difference.</p>
+          <button 
+            onClick={handleGetStarted}
+            className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300 inline-flex items-center"
+          >
+            Get Started Now <FaArrowRight className="ml-2 w-5 h-5" />
+          </button>
         </div>
       </div>
     </div>

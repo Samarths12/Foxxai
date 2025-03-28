@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
+import { FaArrowRight } from 'react-icons/fa';
 
 const Features = () => {
   const navigate = useNavigate();
@@ -8,8 +9,8 @@ const Features = () => {
     {
       id: 1,
       image: "https://www.shutterstock.com/image-photo/medical-technology-doctor-use-ai-600nw-2304284475.jpg",
-      title: "Revolutionizing Healthcare: AI Voice Technology's Transformative Impact",
-      description: "The healthcare landscape is undergoing a radical transformation, driven by artificial intelligence's unprecedented capabilities...",
+      title: "Ways AI Agents Save Time and Lots of Money for SMEs",
+      description: "For small and medium enterprises (SMEs) in industries like logistics, automotive, and retail, every minute...",
       bgColor: "#F3E5F5",
       readTime: "5 min read",
       category: "Healthcare"
@@ -17,8 +18,8 @@ const Features = () => {
     {
       id: 2,
       image: "https://img.freepik.com/premium-photo/doctors-focused-hand-writes-prescription-symbolizing-precision-medical-care_1320055-12962.jpg",
-      title: "Precision in AI: The Critical Role of Advanced Data Annotation",
-      description: "Data annotation is the unsung hero of artificial intelligence—a meticulous craft that transforms raw, unstructured data into intelligence...",
+      title: "Revolutionizing Logistics: How AI Agents Streamline Operations",
+      description: "Logistics SMEs face a constant battle: managing complex operations while keeping costs low and...",
       bgColor: "#FFF8E5",
       readTime: "4 min read",
       category: "Technology"
@@ -26,29 +27,11 @@ const Features = () => {
     {
       id: 3,
       image: "https://img.freepik.com/premium-photo/futuristic-laboratory-medical-professionals-conducting-advanced-tests_886588-32436.jpg",
-      title: "Breakthrough AI Content Generation: Beyond Speed to Meaningful Communication",
-      description: "Content generation powered by artificial intelligence transcends mere text production. It's about crafting meaningful...",
+      title: "Unlocking AI Power for SMEs: Auto-Improving Feedback Loops and Ultra-Low Latency",
+      description: "For small and medium enterprises (SMEs) in logistics, automotive, and retail, adopting AI can feel like a big...",
       bgColor: "#E7FFEB",
       readTime: "6 min read",
       category: "AI"
-    },
-    {
-      id: 4,
-      image: "https://elearningindustry.com/wp-content/uploads/2019/12/4-Benefits-Of-AI-In-Personalized-Learning.jpg",
-      title: "The education sector is on the brink of a revolution, with artificial intelligence paving the way for personalized learning experience...",
-      description: "As AI becomes increasingly integrated into healthcare systems, addressing ethical considerations and maintaining transparency has become paramount. Explore how healthcare providers are balancing innovation with patient trust...",
-      bgColor: "#E3F2FD",
-      readTime: "3 min read",
-      category: "Education"
-    },
-    {
-      id: 5,
-      image: "https://media.licdn.com/dms/image/D4D12AQGjuZbRz71a7A/article-cover_image-shrink_720_1280/0/1715692030331?e=2147483647&v=beta&t=v__SrpVtFwYZnGu-ETmaA7R0czEdBJ5zw7Hl3gKFer0",
-      title: "Traditional education systems often struggle to address the diverse learning needs of students. One-size-fits-all approaches can ...",
-      description: "Discover how artificial intelligence is revolutionizing personalized medicine by analyzing vast amounts of patient data to create tailored treatment plans that consider individual genetic profiles, lifestyle factors, and medical history...",
-      bgColor: "#F3E5F5",
-      readTime: "7 min read",
-      category: "Education"
     }
   ];
 
@@ -83,6 +66,10 @@ const Features = () => {
 
   const handleCardClick = (id) => {
     navigate(`/blog/${id}`);
+  };
+
+  const handleGetStarted = () => {
+    navigate('/enquiry');
   };
 
   const getVisibleFeatures = () => {
@@ -199,6 +186,20 @@ const Features = () => {
               onMouseLeave={() => setIsHovered(false)}
             />
           ))}
+        </div>
+      </div>
+
+      {/* CTA Section - Shifted Down and Full Width */}
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-500 mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Business?</h2>
+          <p className="text-xl mb-8 text-indigo-100">Start using our AI agents today and experience the difference.</p>
+          <button 
+            onClick={handleGetStarted}
+            className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300 inline-flex items-center"
+          >
+            Get Started Now <FaArrowRight className="ml-2 w-5 h-5" />
+          </button>
         </div>
       </div>
     </section>

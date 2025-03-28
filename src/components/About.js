@@ -1,10 +1,19 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FaTwitter, FaLinkedinIn, FaFacebook, FaGithub, FaInstagram } from "react-icons/fa";
 import { MdMail, MdPhone, MdLocationOn, MdAccessTime } from "react-icons/md";
 import logo from "./logo.jpg";
 import "./tailwindstyles.css";
 
 const AboutUs = () => {
+  const navigate = useNavigate();
+
+  // Navigation handler with scroll to top
+  const handleNavigation = (path) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <section className="bg-gradient-custom text-custom-gray py-32 relative overflow-hidden w-full">
       <div className="container mx-auto px-custom max-w-7xl">
@@ -39,9 +48,20 @@ const AboutUs = () => {
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-gray-900 border-custom pb-2">Company</h3>
               <ul className="space-y-4">
-                {["Careers", "About Us", "Blog", "Partners", "Developers"].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="link-custom transition-custom">{item}</a>
+                {[
+                  { text: "Careers", path: "/careers" },
+                  { text: "About Us", path: "/docs" },
+                  { text: "Blog", path: "/features" },
+                  { text: "Partners", path: "#" },
+                  { text: "Developers", path: "#" },
+                ].map((item) => (
+                  <li key={item.text}>
+                    <button
+                      onClick={() => handleNavigation(item.path)}
+                      className="link-custom transition-custom text-left w-full"
+                    >
+                      {item.text}
+                    </button>
                   </li>
                 ))}
               </ul>

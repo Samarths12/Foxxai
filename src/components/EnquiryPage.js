@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FaUser, 
-  FaEnvelope, 
-  FaBuilding, 
-  FaPhone, 
-  FaLightbulb, 
-  FaPaperPlane, 
-  FaArrowLeft, 
+import {
+  FaUser,
+  FaEnvelope,
+  FaBuilding,
+  FaPhone,
+  FaLightbulb,
+  FaPaperPlane,
+  FaArrowLeft,
   FaCheck,
   FaBrain,
   FaRobot,
   FaChartLine,
   FaCode,
-  FaHeadset
+  FaHeadset,
 } from "react-icons/fa";
+import { db, collection, addDoc } from "../firebase.js";
 
 const EnquiryPage = () => {
   const navigate = useNavigate();
@@ -23,396 +24,427 @@ const EnquiryPage = () => {
     email: "",
     company: "",
     phone: "",
-    interest: "",
+    interests: [],
     message: "",
-    budget: "10000-50000",
-    requirements: []
+    budget: "25000-50000",
+    requirements: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [submitError, setSubmitError] = useState(null);
 
   const interests = [
     { id: "customer-service", label: "AI Customer Service", icon: FaHeadset },
     { id: "data-analytics", label: "Data Analytics", icon: FaChartLine },
     { id: "custom-ai", label: "Custom AI Solutions", icon: FaBrain },
     { id: "automation", label: "Workflow Automation", icon: FaCode },
-    { id: "ai-chatbots", label: "AI Chatbots", icon: FaRobot }
+    { id: "ai-chatbots", label: "AI Chatbots", icon: FaRobot },
   ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    if (formErrors[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: undefined }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleCheckboxChange = (e) => {
     const { value, checked } = e.target;
-    setFormData(prev => {
-      if (checked) {
-        return { ...prev, requirements: [...prev.requirements, value] };
-      } else {
-        return { 
-          ...prev, 
-          requirements: prev.requirements.filter(item => item !== value) 
-        };
-      }
-    });
+    setFormData((prev) => ({
+      ...prev,
+      requirements: checked
+        ? [...prev.requirements, value]
+        : prev.requirements.filter((item) => item !== value),
+    }));
+  };
+
+  const handleInterestToggle = (interestId) => {
+    setFormData((prev) => ({
+      ...prev,
+      interests: prev.interests.includes(interestId)
+        ? prev.interests.filter((id) => id !== interestId)
+        : [...prev.interests, interestId],
+    }));
+    setFormErrors((prev) => ({ ...prev, interests: undefined }));
   };
 
   const validateForm = () => {
     const errors = {};
-    
     if (!formData.name.trim()) errors.name = "Name is required";
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      errors.email = "Email is invalid";
-    }
+    if (!formData.email.trim()) errors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email)) errors.email = "Email is invalid";
     if (!formData.company.trim()) errors.company = "Company name is required";
-    if (!formData.interest) errors.interest = "Please select an area of interest";
-    if (!formData.message.trim()) errors.message = "Please tell us about your project";
-    
+    if (formData.interests.length === 0) errors.interests = "Select at least one interest";
+    if (!formData.message.trim()) errors.message = "Tell us about your project";
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-    
+    if (!validateForm()) {
+      console.log("Validation failed:", formErrors);
+      return;
+    }
+  
     setSubmitting(true);
+    setSubmitError(null);
+  
+    try {
+      const enquiryData = {
+        ...formData,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Add more detailed logging
+    console.log("Attempting to submit data to Firestore:", enquiryData);
     
-    setTimeout(() => {
-      setSubmitting(false);
-      setSubmitted(true);
-      
-      setTimeout(() => {
-        setSubmitted(false);
-        setFormData({
-          name: "",
-          email: "",
-          company: "",
-          phone: "",
-          interest: "",
-          message: "",
-          budget: "10000-50000",
-          requirements: []
-        });
-      }, 5000);
-    }, 1500);
-  };
+    // Make sure the collection exists first
+    const enquiriesCollection = collection(db, "enquiries");
+    
+    // Add the document with explicit error handling
+    const docRef = await addDoc(enquiriesCollection, enquiryData);
+    console.log("Document successfully written with ID:", docRef.id);
+
+    setSubmitting(false);
+    setSubmitted(true);
+    setFormData({
+      name: "",
+      email: "",
+      company: "",
+      phone: "",
+      interests: [],
+      message: "",
+      budget: "25000-50000",
+      requirements: [],
+    });
+  } catch (error) {
+    console.error("Firestore submission error:", {
+      code: error.code,
+      message: error.message,
+      stack: error.stack,
+      details: error.toString()
+    });
+    setSubmitting(false);
+    setSubmitError(`Failed to submit enquiry: ${error.message}. Please try again.`);
+  }
+};
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-purple-50 to-purple-200 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-full h-full opacity-30">
-          <div className="absolute top-0 -left-4 w-48 md:w-72 h-48 md:h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-48 md:w-72 h-48 md:h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-48 md:w-72 h-48 md:h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-blue-50 py-6 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="w-full h-full opacity-20">
+          <div className="absolute top-[-10%] left-[-10%] w-64 h-64 md:w-96 md:h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
+          <div className="absolute top-[-5%] right-[-5%] w-64 h-64 md:w-96 md:h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-15%] left-[20%] w-64 h-64 md:w-96 md:h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
         </div>
       </div>
-      
-      <div className="relative max-w-4xl mx-auto">
-        <button 
-          onClick={() => navigate("/")} 
-          className="flex items-center text-blue-600 hover:text-blue-800 transition-colors mb-6"
+
+      <div className="relative max-w-5xl mx-auto">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center text-blue-600 hover:text-blue-800 transition-colors mb-6 sm:mb-8"
         >
           <FaArrowLeft className="mr-2" /> Back to Home
         </button>
-        
-        <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
-            Let's Discuss Your <span className="text-blue-600">AI Solution</span>
+
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
+            Let's Build Your <span className="text-blue-600">AI Future</span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Tell us about your business needs and our team will help you discover the perfect AI solutions to transform your operations.
+          <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto px-4">
+            Share your vision, and we'll craft tailored AI solutions to elevate your business.
           </p>
         </div>
-        
-        {submitted ? (
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-xl mx-auto transform transition-all duration-500 animate-fade-in-up">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FaCheck className="text-green-500 text-2xl" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Enquiry Received!</h2>
-            <p className="text-gray-600 mb-6">
-              Thank you for your interest! Our team will review your requirements and contact you shortly.
-            </p>
-            <button 
-              onClick={() => navigate("/")}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
-            >
-              Return to Homepage
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Name Field */}
-              <div className="col-span-1">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="name">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaUser className="text-gray-400 w-5 h-5" />
-                  </div>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className={`w-full pl-12 pr-3 py-3 border ${formErrors.name ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-black placeholder-gray-500`}
-                    placeholder="Enter your name"
-                  />
-                </div>
-                {formErrors.name && <p className="mt-1 text-red-500 text-sm">{formErrors.name}</p>}
+
+        <div className="w-full max-w-3xl mx-auto">
+          {submitted ? (
+            <div className="bg-white/95 rounded-2xl shadow-2xl p-6 sm:p-8 text-center animate-fade-in-up">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <FaCheck className="text-green-500 text-2xl" />
               </div>
-              
-              {/* Email Field */}
-              <div className="col-span-1">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="email">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaEnvelope className="text-gray-400 w-5 h-5" />
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-full pl-12 pr-3 py-3 border ${formErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-black placeholder-gray-500`}
-                    placeholder="Enter your email"
-                  />
-                </div>
-                {formErrors.email && <p className="mt-1 text-red-500 text-sm">{formErrors.email}</p>}
-              </div>
-              
-              {/* Company Field */}
-              <div className="col-span-1">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="company">
-                  Company Name
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaBuilding className="text-gray-400 w-5 h-5" />
-                  </div>
-                  <input
-                    type="text"
-                    id="company"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    className={`w-full pl-12 pr-3 py-3 border ${formErrors.company ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-black placeholder-gray-500`}
-                    placeholder="Enter company name"
-                  />
-                </div>
-                {formErrors.company && <p className="mt-1 text-red-500 text-sm">{formErrors.company}</p>}
-              </div>
-              
-              {/* Phone Field */}
-              <div className="col-span-1">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="phone">
-                  Phone Number <span className="text-gray-400 text-sm">(Optional)</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaPhone className="text-gray-400 w-5 h-5" />
-                  </div>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full pl-12 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-black placeholder-gray-500"
-                    placeholder="Enter phone number"
-                  />
-                </div>
-              </div>
-              
-              {/* Budget Range */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 font-medium mb-2">
-                  Estimated Budget (Rs)
-                </label>
-                <div className="grid grid-cols-3 gap-4">
-                  {["25,000-50,000", "50,000-1,00,000", "> 1,00,000"].map((budget, index) => (
-                    <div key={index} className="flex items-center">
-                      <input
-                        type="radio"
-                        id={`budget-${index}`}
-                        name="budget"
-                        value={budget.replace(/\s/g, '')}
-                        checked={formData.budget === budget.replace(/\s/g, '')}
-                        onChange={handleChange}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <label htmlFor={`budget-${index}`} className="ml-2 text-gray-700">
-                        {budget}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Interest Area */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 font-medium mb-3">
-                  Area of Interest
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-2">
-                  {interests.map((interest) => (
-                    <div
-                      key={interest.id}
-                      className={`
-                        cursor-pointer rounded-lg border p-4 text-center transition-all min-h-[100px] flex flex-col justify-center
-                        ${formData.interest === interest.id
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'}
-                      `}
-                      onClick={() => setFormData({...formData, interest: interest.id})}
-                    >
-                      <interest.icon className="mx-auto text-2xl mb-2" />
-                      <p className="font-medium text-sm sm:text-base break-words text-black">{interest.label}</p>
-                    </div>
-                  ))}
-                </div>
-                {formErrors.interest && (
-                  <p className="mt-2 text-red-500 text-sm">{formErrors.interest}</p>
-                )}
-              </div>
-              
-              {/* Requirements checkboxes */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 font-medium mb-3">
-                  What are you looking for? (Check all that apply)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {["Proof of concept", "Full solution implementation", "Integration with existing systems", "Consultation services", "Training for team", "Ongoing support"].map((req, index) => (
-                    <div key={index} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={`req-${index}`}
-                        name="requirements"
-                        value={req}
-                        checked={formData.requirements.includes(req)}
-                        onChange={handleCheckboxChange}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <label htmlFor={`req-${index}`} className="ml-2 text-gray-700">
-                        {req}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Message Field */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 font-medium mb-2" htmlFor="message">
-                  Tell us about your project
-                </label>
-                <div className="relative">
-                  <div className="absolute top-3 left-3 pointer-events-none">
-                    <FaLightbulb className="text-gray-400 w-5 h-5" />
-                  </div>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows="5"
-                    className={`w-full pl-12 pr-3 py-3 border ${formErrors.message ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-black placeholder-gray-500`}
-                    placeholder="Describe your business needs and what you're looking to achieve with AI"
-                  ></textarea>
-                </div>
-                {formErrors.message && <p className="mt-1 text-red-500 text-sm">{formErrors.message}</p>}
-              </div>
-            </div>
-            
-            <div className="mt-8 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Enquiry Submitted!</h2>
+              <p className="text-gray-600 mb-6 text-sm sm:text-base">
+                We've received your request. Our team will reach out soon to discuss your AI journey.
+              </p>
               <button
-                type="submit"
-                disabled={submitting}
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                onClick={() => navigate("/")}
+                className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg shadow-md hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
               >
-                {submitting ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center">
-                    <FaPaperPlane className="mr-2" /> Submit Enquiry
-                  </span>
-                )}
+                Back to Home
               </button>
             </div>
-            
-            <p className="mt-6 text-center text-gray-500 text-sm">
-              By submitting this form, you agree to our privacy policy and terms of service.
-            </p>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleSubmit} className="bg-white/95 rounded-2xl shadow-2xl p-6 sm:p-8 backdrop-blur-sm">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1.5 text-sm sm:text-base" htmlFor="name">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <FaUser className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className={`w-full pl-10 pr-3 py-2.5 border ${
+                          formErrors.name ? "border-red-500" : "border-gray-300"
+                        } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500 text-sm sm:text-base`}
+                        placeholder="Your name"
+                      />
+                    </div>
+                    {formErrors.name && <p className="mt-1 text-red-500 text-xs sm:text-sm">{formErrors.name}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1.5 text-sm sm:text-base" htmlFor="email">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <FaEnvelope className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className={`w-full pl-10 pr-3 py-2.5 border ${
+                          formErrors.email ? "border-red-500" : "border-gray-300"
+                        } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500 text-sm sm:text-base`}
+                        placeholder="Your email"
+                      />
+                    </div>
+                    {formErrors.email && <p className="mt-1 text-red-500 text-xs sm:text-sm">{formErrors.email}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1.5 text-sm sm:text-base" htmlFor="company">
+                      Company Name
+                    </label>
+                    <div className="relative">
+                      <FaBuilding className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        id="company"
+                        name="company"
+                        value={formData.company}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className={`w-full pl-10 pr-3 py-2.5 border ${
+                          formErrors.company ? "border-red-500" : "border-gray-300"
+                        } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500 text-sm sm:text-base`}
+                        placeholder="Your company"
+                      />
+                    </div>
+                    {formErrors.company && (
+                      <p className="mt-1 text-red-500 text-xs sm:text-sm">{formErrors.company}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1.5 text-sm sm:text-base" htmlFor="phone">
+                      Phone <span className="text-gray-400 text-xs sm:text-sm">(Optional)</span>
+                    </label>
+                    <div className="relative">
+                      <FaPhone className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500 text-sm sm:text-base"
+                        placeholder="Your phone"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
+                    Estimated Budget (Rs)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                    {["25,000-50,000", "50,000-1,00,000", "> 1,00,000"].map((budget, index) => (
+                      <label key={index} className="flex items-center cursor-pointer">
+                        <input
+                          type="radio"
+                          name="budget"
+                          value={budget.replace(/\s/g, "")}
+                          checked={formData.budget === budget.replace(/\s/g, "")}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="ml-2 text-gray-700 text-sm sm:text-base">{budget}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
+                    Areas of Interest
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {interests.map((interest) => (
+                      <div
+                        key={interest.id}
+                        className={`relative cursor-pointer rounded-lg border p-3 sm:p-4 text-center transition-all ${
+                          formData.interests.includes(interest.id)
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                        } ${submitting ? "pointer-events-none opacity-60" : ""}`}
+                        onClick={() => !submitting && handleInterestToggle(interest.id)}
+                      >
+                        <interest.icon className="mx-auto text-xl sm:text-2xl mb-2" />
+                        <p className="text-xs sm:text-sm font-medium text-black">{interest.label}</p>
+                        {formData.interests.includes(interest.id) && (
+                          <FaCheck className="absolute top-2 right-2 text-blue-500" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {formErrors.interests && (
+                    <p className="mt-2 text-red-500 text-xs sm:text-sm">{formErrors.interests}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
+                    What do you need?
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      "Proof of concept",
+                      "Full solution implementation",
+                      "Integration with existing systems",
+                      "Consultation services",
+                      "Training for team",
+                      "Ongoing support",
+                    ].map((req, index) => (
+                      <label key={index} className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="requirements"
+                          value={req}
+                          checked={formData.requirements.includes(req)}
+                          onChange={handleCheckboxChange}
+                          disabled={submitting}
+                          className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="ml-2 text-gray-700 text-sm sm:text-base">{req}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-medium mb-1.5 text-sm sm:text-base" htmlFor="message">
+                    Project Details
+                  </label>
+                  <div className="relative">
+                    <FaLightbulb className="absolute top-3 left-3 text-gray-400" />
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      disabled={submitting}
+                      rows="4"
+                      className={`w-full pl-10 pr-3 py-2.5 border ${
+                        formErrors.message ? "border-red-500" : "border-gray-300"
+                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500 text-sm sm:text-base`}
+                      placeholder="Tell us about your AI needs"
+                    />
+                  </div>
+                  {formErrors.message && (
+                    <p className="mt-1 text-red-500 text-xs sm:text-sm">{formErrors.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {submitError && (
+                <div className="mt-4 text-center">
+                  <p className="text-red-500 text-sm">{submitError}</p>
+                  <button
+                    onClick={handleSubmit}
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+
+              <div className="mt-6 sm:mt-8 text-center">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg shadow-md hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {submitting ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin mr-2 h-5 w-5 text-white" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Submitting...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center">
+                      <FaPaperPlane className="mr-2" /> Send Enquiry
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              <p className="mt-4 text-center text-gray-500 text-xs sm:text-sm">
+                By submitting, you agree to our privacy policy and terms.
+              </p>
+            </form>
+          )}
+        </div>
       </div>
-      
+
       <style jsx>{`
-        @keyframes float {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        
         @keyframes blob {
           0% { transform: scale(1) translate(0, 0); }
-          33% { transform: scale(1.1) translate(30px, -50px); }
-          66% { transform: scale(0.9) translate(-20px, 20px); }
+          33% { transform: scale(1.05) translate(20px, -30px); }
+          66% { transform: scale(0.95) translate(-15px, 15px); }
           100% { transform: scale(1) translate(0, 0); }
         }
-        
+
         .animate-blob {
-          animation: blob 7s infinite alternate;
+          animation: blob 8s infinite;
         }
-        
+
         .animation-delay-2000 {
           animation-delay: 2s;
         }
-        
+
         .animation-delay-4000 {
           animation-delay: 4s;
         }
-        
+
         .animate-fade-in-up {
           animation: fadeInUp 0.5s ease-out;
         }
-        
+
         @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+          .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .grid-cols-2 { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>

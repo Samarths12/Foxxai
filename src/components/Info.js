@@ -39,11 +39,8 @@ const Info = () => {
       {/* Client Data Journey Header */}
       <div className="container mx-auto px-4 mb-16">
         <div className="text-center">
-          <div className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2 px-6 py-1 rounded-full text-sm font-semibold">
-            Our Process
-          </div>
           <h2 className="text-5xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-            Client Data Journey
+          The Intelligent Engagement Blueprint
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Our comprehensive approach to understanding and fulfilling your data needs through innovation and expertise
@@ -134,9 +131,6 @@ const Info = () => {
                     {/* Subtle indicator for hover effect */}
                     <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className={`h-1 w-8 bg-gradient-to-r ${box.accentColor} rounded-full mr-2`}></div>
-                      <span className={`text-sm font-medium bg-gradient-to-r ${box.accentColor} bg-clip-text text-transparent`}>
-                        Learn more
-                      </span>
                     </div>
                   </div>
                 </div>

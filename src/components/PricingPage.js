@@ -1,13 +1,21 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
+import { FaArrowRight } from 'react-icons/fa';
 
 const PricingPage = () => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/enquiry');
+  };
+
   return (
     <div className="bg-gray-50 py-8 px-4 min-h-screen">
       <div className="max-w-6xl mx-auto">
         {/* Heading */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-800">Find Your Perfect Plan</h1>
-          <p className="text-gray-500 mt-1">Tailored pricing to match your needs and goals</p>
+          <h1 className="text-3xl font-semibold text-gray-800">Create your own pricing</h1>
+          <p className="text-gray-500 mt-1">decide what best for you</p>
         </div>
 
         {/* Pricing Table */}
@@ -143,7 +151,7 @@ const PricingPage = () => {
               <div className="p-4 border-l">
                 <div className="">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r=" решение10"></circle>
                     <path d="M8 12l2 2 4-4"></path>
                   </svg>
                 </div>
@@ -364,7 +372,7 @@ const PricingPage = () => {
               <div className="p-4 border-l">
                 <div className="text-green-500 flex justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="20" r="10"></circle>
                     <path d="M8 12l2 2 4-4"></path>
                   </svg>
                 </div>
@@ -503,10 +511,21 @@ const PricingPage = () => {
               <div className="p-4 border-l"></div>
             </div>
           </div>
-
         </div>
+      </div>
 
-        
+      {/* CTA Section - Full Width */}
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-16 mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Business?</h2>
+          <p className="text-xl mb-8 text-indigo-100">Start using our AI agents today and experience the difference.</p>
+          <button 
+            onClick={handleGetStarted}
+            className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300 inline-flex items-center"
+          >
+            Get Started Now <FaArrowRight className="ml-2 w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );
